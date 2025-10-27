@@ -1,29 +1,24 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Menú - Restaurante Las Barrancas</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css"/>
   <style>
-    html {
-      scroll-behavior: smooth;
-    }
-    .menu-section {
-      scroll-margin-top: 110px; /* deja espacio por el título fijo */
-    }
+    html { scroll-behavior: smooth; }
+    .menu-section { scroll-margin-top: 110px; }
   </style>
 </head>
 <body>
   <header>
     <h1>Barrancas</h1>
     <p>Restaurante</p>
+    <img src="logob.png.png" alt="Logo Las Barrancas" class="logo-header">
   </header>
 
-  <!-- Botón de menú (hamburguesa) -->
   <div class="menu-toggle" id="menuToggle">☰</div>
 
-  <!-- Menú desplegable -->
   <nav class="menu-nav" id="menuNav">
     <ul>
       <li><a href="#entradas">Entradas</a></li>
@@ -34,118 +29,44 @@
       <li><a href="#infantil">Infantil</a></li>
       <li><a href="#postres">Postres</a></li>
     </ul>
+    <ul>
+      <li><a href="#vinotinto">Vino Tinto</a></li>
+      <li><a href="#vinoblanco">Vino Blanco</a></li>
+      <li><a href="#espumantes">Espumantes</a></li>
+      <li><a href="#gaseosasyaguas">Bebidas sin alcohol</a></li>
+      <li><a href="#tragos">Tragos</a></li>
+    </ul>
   </nav>
 
-  <!-- Título fijo dinámico -->
-  <div class="titulo-fijo">Menú</div>
 
-  <!-- Contenedor donde se genera el menú -->
   <main id="menu"></main>
 
   <footer>
     <p>Consultar por productos aptos celíacos</p>
     <p>© 2025 Las Barrancas</p>
   </footer>
+  <!-- Si lo guardaste en /js/script.js, cambia a src="js/script.js" -->
+  <script src="scripts.js" defer></script>
 
-  <!-- Script: título fijo dinámico -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const tituloFijo = document.querySelector('.titulo-fijo');
-      window.addEventListener('scroll', () => {
-        const secciones = document.querySelectorAll('.menu-section');
-        let actual = 'Menú';
-        secciones.forEach(sec => {
-          const top = sec.offsetTop - 120;
-          if (window.scrollY >= top) {
-            actual = sec.querySelector('h2').textContent;
+    // Espera a que todo el contenido (incluyendo los h2 creados por fetch) esté listo
+    window.addEventListener("load", () => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const h2 = entry.target;
+          if (entry.intersectionRatio > 0.6) {
+            h2.classList.add('active');
+          } else {
+            h2.classList.remove('active');
           }
         });
-        tituloFijo.textContent = actual;
-      });
+      }, { threshold: [0.4, 0.6, 0.8] });
+
+      // Aplica el observador a todos los títulos cuando ya existen en el DOM
+      document.querySelectorAll('.menu-section h2').forEach(h2 => observer.observe(h2));
     });
   </script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <!-- Script: cargar datos desde Google Sheets -->
-  <script>
-    const API_URL = "https://sheetdb.io/api/v1/kia309vxzlfie";
-
-    fetch(API_URL)
-      .then(res => res.json())
-      .then(data => {
-        const menu = document.getElementById("menu");
-        const categorias = {};
-
-        // Agrupar por ID
-        data.forEach(item => {
-          const id = (item.ID || "").trim();
-          const nombre = (item.Categoria || "").trim();
-          if (!id || !nombre) return;
-
-          if (!categorias[id]) {
-            categorias[id] = { nombre: nombre, platos: [] };
-          }
-          categorias[id].platos.push(item);
-        });
-
-        // Crear secciones dinámicamente
-        Object.keys(categorias).forEach(id => {
-          const { nombre, platos } = categorias[id];
-          const section = document.createElement("section");
-          section.className = "menu-section";
-          section.id = id;
-
-          // Título visible
-          const h2 = document.createElement("h2");
-          h2.textContent = nombre;
-          section.appendChild(h2);
-
-          // Agregar platos
-          platos.forEach(plato => {
-            const div = document.createElement("div");
-            div.className = "menu-item";
-            const precio = Number(plato.Precio).toLocaleString('es-AR');
-            div.innerHTML = `
-              <div class="info">
-                <h3>${plato.Plato}</h3>
-                <p>${plato.Descripcion || ""}</p>
-              </div>
-              <span class="price">$${precio}</span>
-            `;
-            section.appendChild(div);
-          });
-
-          menu.appendChild(section);
-        });
-      })
-      .catch(err => {
-        document.getElementById("menu").innerHTML = "<p>Error al cargar la carta.</p>";
-        console.error(err);
-      });
-  </script>
-
-  <!-- Menú hamburguesa + efecto blur + scroll suave -->
-  <script>
-    const toggle = document.getElementById('menuToggle');
-    const nav = document.getElementById('menuNav');
-
-    toggle.addEventListener('click', () => {
-      nav.classList.toggle('active');
-      document.body.classList.toggle('menu-open'); // activa blur
-    });
-
-    // Scroll suave + cerrar menú
-    document.querySelectorAll('.menu-nav a').forEach(a => {
-      a.addEventListener('click', (e) => {
-        e.preventDefault();
-        const id = a.getAttribute('href').slice(1);
-        const el = document.getElementById(id);
-        if (!el) return;
-        const y = el.getBoundingClientRect().top + window.scrollY - 110;
-        window.scrollTo({ top: y, behavior: 'smooth' });
-        nav.classList.remove('active');
-        document.body.classList.remove('menu-open');
-      });
-    });
-  </script>
 </body>
 </html>

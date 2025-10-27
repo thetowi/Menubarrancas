@@ -7,16 +7,51 @@ body {
 }
 
 header {
-  background-color: #3c2f2f;
+  position: relative;
+  background-color: #3c2f2f; /* 🎨 marrón base */
   color: #fff;
   text-align: center;
-  padding: 60px 40px;
+  padding: 40px 20px 30px;
+  border-bottom: 2px solid #d8c8a0;
+  overflow: hidden;
 }
 
+/* Capa solo para la textura (difuminada) */
+header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("backgrounds.png");
+  background-repeat: repeat;
+  background-size: 1000px 1000px;
+  background-position: top left;
+  filter: blur(5px);      /* 🎨 difumina SOLO el patrón */
+  opacity: 0.15;          /* controla qué tan visible es */
+  z-index: 0;             /* queda detrás del texto y otros elementos */
+  pointer-events: none;   /* no bloquea clics o interacción */
+}
+
+/* Texto e imágenes del header (logo, títulos) */
+header * {
+  position: relative;
+  z-index: 1; /* ✅ por encima del patrón difuminado */
+}
+
+
+
 header h1 {
-  font-size: 2.5em;
+  font-family: 'Playfair Display', serif;
+  font-size: 4.5em;
   margin-bottom: 5px;
-  padding-top: 50px;
+  padding-top: 0px;
+}
+header p {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5em;
+  letter-spacing: 4px;
+  color: #d8c8a0;
+  font-weight: 400;
+  text-transform: uppercase;
 }
 
 header p {
@@ -224,4 +259,56 @@ body.menu-open footer {
   margin: 20px 0;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
+
+.logo-header {
+  filter: invert(1);
+}
+/* HEADER PEGABLE DE CADA SECCIÓN */
+.section-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #faf7f2;
+  border-bottom: 1px solid #d8c8a0;
+
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  overflow: hidden; /* evita que se vea desbordado al moverlo */
+}
+
+.section-header.active {
+  justify-content: center;       /* centrado real */
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.8em;
+  font-weight: 700;
+  color: #3c2f2f;
+
+  transform: translateX(0%) scale(1); /* empieza alineado a la izquierda */
+  opacity: 0.9;
+  transition: transform 0.9s ease-in-out, color 0.6s ease, opacity 0.6s ease;
+}
+
+/* Cuando llega al top */
+.section-header.active h2 {
+  transform:  scale(1.08); /* se desliza suavemente al centro */
+  opacity: 1;
+  color: #2a1d1d;
+}
+
+.plato-img {
+  width: 100%;
+  max-width: 280px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  object-fit: cover;
+  display: block;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
 
