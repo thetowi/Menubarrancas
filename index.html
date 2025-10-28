@@ -25,7 +25,11 @@
       <li><a href="#ensaladas">Ensaladas</a></li>
       <li><a href="#infantil">Infantil</a></li>
       <li><a href="#postres">Postres</a></li>
-      <li><a href="#bebidas">Bebidas</a></li>
+      <li><a href="#cervezas">Cervezas</a></li>
+      <li><a href="#espumantes">Espumantes<E/a></li>
+      <li><a href="#malbec">Malbec</a></li>
+      <li><a href="#charddonay">Charddonay</a></li>
+      <li><a href="#bebidassinalcohol">Bebidas sin alcohol</a></li>
     </ul>
   </nav>
 
@@ -174,5 +178,31 @@
         });
     }
   </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log("✅ Menú hamburguesa activo");
+
+      const toggle = document.getElementById('menuToggle');
+      const nav = document.getElementById('menuNav');
+
+      if (toggle && nav) {
+        toggle.addEventListener('click', () => {
+          nav.classList.toggle('active');
+          document.body.classList.toggle('menu-open');
+        });
+
+        // Cierra el menú al hacer clic en un enlace
+        document.querySelectorAll('.menu-nav a').forEach(a => {
+          a.addEventListener('click', () => {
+            nav.classList.remove('active');
+            document.body.classList.remove('menu-open');
+          });
+        });
+      } else {
+        console.warn("⚠️ No se encontró menuToggle o menuNav");
+      }
+    });
+  </script>
+
 </body>
 </html>
