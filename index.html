@@ -5,16 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Menú - Restaurante Las Barrancas</title>
   <link rel="stylesheet" href="style.css"/>
-  <style>
-    html { scroll-behavior: smooth; }
-    .menu-section { scroll-margin-top: 110px; }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <header>
     <h1>Barrancas</h1>
     <p>Restaurante</p>
-    <img src="logob.png.png" alt="Logo Las Barrancas" class="logo-header">
+    <img src="logobb.png" alt="Logo Las Barrancas" class="logo-header">
   </header>
 
   <div class="menu-toggle" id="menuToggle">☰</div>
@@ -28,16 +25,9 @@
       <li><a href="#ensaladas">Ensaladas</a></li>
       <li><a href="#infantil">Infantil</a></li>
       <li><a href="#postres">Postres</a></li>
-    </ul>
-    <ul>
-      <li><a href="#vinotinto">Vino Tinto</a></li>
-      <li><a href="#vinoblanco">Vino Blanco</a></li>
-      <li><a href="#espumantes">Espumantes</a></li>
-      <li><a href="#gaseosasyaguas">Bebidas sin alcohol</a></li>
-      <li><a href="#tragos">Tragos</a></li>
+      <li><a href="#bebidas">Bebidas</a></li>
     </ul>
   </nav>
-
 
   <main id="menu"></main>
 
@@ -45,11 +35,8 @@
     <p>Consultar por productos aptos celíacos</p>
     <p>© 2025 Las Barrancas</p>
   </footer>
-  <!-- Si lo guardaste en /js/script.js, cambia a src="js/script.js" -->
-  <script src="scripts.js" defer></script>
 
   <script>
-    // Espera a que todo el contenido (incluyendo los h2 creados por fetch) esté listo
     window.addEventListener("load", () => {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -61,12 +48,131 @@
           }
         });
       }, { threshold: [0.4, 0.6, 0.8] });
-
-      // Aplica el observador a todos los títulos cuando ya existen en el DOM
       document.querySelectorAll('.menu-section h2').forEach(h2 => observer.observe(h2));
     });
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjPnsWU7bdiRl12bYM-UdgpEJZcePBcnE",
+      authDomain: "menubarrancas.firebaseapp.com",
+      databaseURL: "https://menubarrancas-default-rtdb.firebaseio.com",
+      projectId: "menubarrancas",
+      storageBucket: "menubarrancas.firebasestorage.app",
+      messagingSenderId: "415717810155",
+      appId: "1:415717810155:web:8a41095ab084acea65c3ae"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const menu = document.getElementById('menu');
+
+    console.log("📡 Obteniendo datos desde Firebase...");
+
+    // Función genérica para renderizar una categoría
+    function renderCategoria(id, data) {
+      const section = document.createElement("section");
+      section.className = "menu-section";
+      section.id = id;
+
+      const headerDiv = document.createElement("div");
+      headerDiv.className = "section-header";
+      const h2 = document.createElement("h2");
+      h2.textContent = data.Categoria || id;
+      headerDiv.appendChild(h2);
+      section.appendChild(headerDiv);
+
+      // Detectar si hay Platos o Bebidas
+      const items = data.Platos || data.Bebidas || [];
+
+      Object.values(items).forEach((item) => {
+        const div = document.createElement("div");
+        div.className = "menu-item";
+
+        const nombre = item.Plato || item.bebida || "";
+        const desc = item.Descripcion || "";
+        const precio = item.Precio || item.precio;
+
+        div.innerHTML = `
+          <div class="info">
+            <h3>${nombre}</h3>
+            <p>${desc}</p>
+          </div>
+          <span class="price">${precio ? "$" + Number(precio).toLocaleString("es-AR") : ""}</span>
+        `;
+
+        section.appendChild(div);
+      });
+
+      menu.appendChild(section);
+    }
+
+    // === 1️⃣ Cargar platos ===
+    get(child(ref(db), "entrada/platos"))
+      .then((snapshot) => {
+        if (!snapshot.exists()) {
+          console.warn("⚠️ No hay datos disponibles en Firebase");
+          menu.innerHTML = "<p>No hay datos disponibles.</p>";
+          return;
+        }
+
+        const data = snapshot.val();
+        console.log("📦 Datos cargados desde Firebase (platos):", data);
+
+        Object.entries(data).forEach(([categoriaId, categoriaData]) => {
+          renderCategoria(categoriaId, categoriaData);
+        });
+
+        // Después de cargar los platos, cargar las bebidas
+        cargarBebidas();
+
+      })
+      .catch((error) => {
+        console.error("💥 Error al leer la base:", error);
+        menu.innerHTML = "<p>Error al cargar la carta.</p>";
+      });
+
+
+    // === 2️⃣ Cargar bebidas ===
+    function cargarBebidas() {
+      get(child(ref(db), "entrada/bebidas"))
+        .then((snapshot) => {
+          if (!snapshot.exists()) {
+            console.warn("⚠️ No hay bebidas disponibles");
+            return;
+          }
+
+          const data = snapshot.val();
+          console.log("🍷 Datos cargados desde Firebase (bebidas):", data);
+
+          // Renderizar cada rama (sin-alcohol / con-alcohol)
+          Object.entries(data).forEach(([grupoId, grupo]) => {
+            if (grupo.Categoria && (grupo.Platos || grupo.Bebidas)) {
+              renderCategoria(grupoId, grupo);
+            } else {
+              // Si tiene subcategorías (cervezas, vinos, etc.)
+              Object.entries(grupo).forEach(([subId, subData]) => {
+                if (subData.Categoria) {
+                  renderCategoria(subId, subData);
+                } else if (typeof subData === "object") {
+                  Object.entries(subData).forEach(([subSubId, subSubData]) => {
+                    if (subSubData.Categoria) renderCategoria(subSubId, subSubData);
+                  });
+                }
+              });
+            }
+          });
+
+          console.log("✅ Bebidas renderizadas correctamente");
+        })
+        .catch((error) => {
+          console.error("💥 Error al leer las bebidas:", error);
+        });
+    }
+  </script>
 </body>
 </html>

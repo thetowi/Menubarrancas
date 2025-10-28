@@ -16,6 +16,21 @@ header {
   overflow: hidden;
 }
 
+.logo-header {
+  width: 350px;        /* tamaño horizontal */
+  height: auto;        /* mantiene proporciones */
+  display: block;      /* para centrar más fácil */
+  margin: 20px auto;   /* centra horizontalmente */
+  opacity: 0.9;        /* transparencia leve */
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.logo-header:hover {
+  transform: scale(1.15);
+  opacity: 1;
+}
+
+
 /* Capa solo para la textura (difuminada) */
 header::before {
   content: "";
@@ -260,9 +275,7 @@ body.menu-open footer {
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
-.logo-header {
-  filter: invert(1);
-}
+
 /* HEADER PEGABLE DE CADA SECCIÓN */
 .section-header {
   position: sticky;

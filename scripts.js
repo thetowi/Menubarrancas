@@ -1,13 +1,11 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   console.log('✅ DOM listo, iniciando app');
 
   // ===== MENÚ HAMBURGUESA + SCROLL =====
   const toggle = document.getElementById('menuToggle');
   const nav = document.getElementById('menuNav');
 
-  if (!toggle || !nav) {
-    console.warn('⚠️ No se encontró #menuToggle o #menuNav');
-  } else {
+  if (toggle && nav) {
     toggle.addEventListener('click', () => {
       nav.classList.toggle('active');
       document.body.classList.toggle('menu-open');
@@ -27,91 +25,97 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ===== CARGAR DATOS GOOGLE SHEETS =====
-  const API_URL = 'https://sheetdb.io/api/v1/kia309vxzlfie';
-  const menu = document.getElementById('menu');
+  // ===== CONFIGURAR FIREBASE =====
+  import("https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js").then(async ({ initializeApp }) => {
+    const { getDatabase, ref, get, child } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js");
 
-  async function cargarCarta() {
-    try {
-      console.log('📡 Fetch a:', API_URL);
-      const res = await fetch(API_URL, { headers: { 'Accept': 'application/json' } });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjPnsWU7bdiRl12bYM-UdgpEJZcePBcnE",
+      authDomain: "menubarrancas.firebaseapp.com",
+      databaseURL: "https://menubarrancas-default-rtdb.firebaseio.com",
+      projectId: "menubarrancas",
+      storageBucket: "menubarrancas.firebasestorage.app",
+      messagingSenderId: "415717810155",
+      appId: "1:415717810155:web:8a41095ab084acea65c3ae"
+    };
 
-      if (!Array.isArray(data) || data.length === 0) {
-        menu.innerHTML = '<p>No hay datos para mostrar.</p>';
-        console.warn('⚠️ Respuesta vacía o no es array:', data);
-        return;
-      }
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-      const categorias = {};
-      data.forEach(item => {
-        const id = (item.ID || '').trim();
-        const nombre = (item.Categoria || '').trim();
-        if (!id || !nombre) return;
+    // ===== FUNCIÓN PARA CARGAR CARTA =====
+    async function cargarCarta() {
+      const menu = document.getElementById('menu');
+      try {
+        console.log('📡 Obteniendo datos desde Firebase...');
+        const snapshot = await get(child(ref(db), '/'));
+        if (!snapshot.exists()) throw new Error('No se encontraron datos en la base');
 
-        if (!categorias[id]) categorias[id] = { nombre, platos: [] };
-        categorias[id].platos.push(item);
-      });
+        const data = snapshot.val();
+        console.log('📦 Datos recibidos:', data);
 
-      // Limpiar y renderizar secciones
-      menu.innerHTML = '';
-      Object.keys(categorias).forEach(id => {
-        const { nombre, platos } = categorias[id];
-        const section = document.createElement('section');
-        section.className = 'menu-section';
-        section.id = id;
+        // Limpiar menú
+        menu.innerHTML = '';
 
-        // Wrapper sticky para mejor centrado
-        const headerDiv = document.createElement('div');
-        headerDiv.className = 'section-header';
+        // Recorrer categorías (entradas, elaborados, etc.)
+        Object.entries(data).forEach(([id, categoria]) => {
+          const section = document.createElement('section');
+          section.className = 'menu-section';
+          section.id = id;
 
-        const h2 = document.createElement('h2');
-        h2.textContent = nombre;
-        headerDiv.appendChild(h2);
-        section.appendChild(headerDiv);
+          // Header
+          const headerDiv = document.createElement('div');
+          headerDiv.className = 'section-header';
+          const h2 = document.createElement('h2');
+          h2.textContent = categoria.Categoria;
+          headerDiv.appendChild(h2);
+          section.appendChild(headerDiv);
 
-        platos.forEach(plato => {
-          const div = document.createElement('div');
-          div.className = 'menu-item';
-          const precioNum = Number(plato.Precio);
-          const precio = Number.isFinite(precioNum) ? precioNum.toLocaleString('es-AR') : '-';
-          div.innerHTML = `
-            <div class="info">
-              <h3>${plato.Plato || ''}</h3>
-              <p>${plato.Descripcion || ''}</p>
-            </div>
-            <span class="price">${precio === '-' ? '' : '$' + precio}</span>
-          `;
-          section.appendChild(div);
+          // Platos
+          if (Array.isArray(categoria.Platos)) {
+            categoria.Platos.forEach(plato => {
+              const div = document.createElement('div');
+              div.className = 'menu-item';
+              const precioNum = Number(plato.Precio);
+              const precio = Number.isFinite(precioNum) ? precioNum.toLocaleString('es-AR') : '-';
+              div.innerHTML = `
+                <div class="info">
+                  <h3>${plato.Plato || ''}</h3>
+                  <p>${plato.Descripcion || ''}</p>
+                </div>
+                <span class="price">${precio === '-' ? '' : '$' + precio}</span>
+              `;
+              section.appendChild(div);
+            });
+          }
+
+          menu.appendChild(section);
         });
 
-        menu.appendChild(section);
-      });
+        console.log('✅ Carta renderizada desde Firebase');
+        iniciarEfectoScroll();
 
-      console.log('✅ Carta renderizada');
-      iniciarEfectoScroll(); // <-- activamos el efecto al terminar de cargar
-    } catch (err) {
-      console.error('💥 Error al cargar la carta:', err);
-      menu.innerHTML = '<p>Error al cargar la carta.</p>';
+      } catch (err) {
+        console.error('💥 Error al cargar la carta:', err);
+        document.getElementById('menu').innerHTML = '<p>Error al cargar la carta.</p>';
+      }
     }
-  }
 
-  // ===== EFECTO DE SCROLL EN LOS TITULOS =====
-  function iniciarEfectoScroll() {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        const header = entry.target;
-        if (entry.intersectionRatio > 0.6) {
-          header.classList.add('active');
-        } else {
-          header.classList.remove('active');
-        }
-      });
-    }, { threshold: [0.4, 0.6, 0.8] });
+    // ===== EFECTO DE SCROLL EN LOS TITULOS =====
+    function iniciarEfectoScroll() {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const header = entry.target;
+          if (entry.intersectionRatio > 0.6) {
+            header.classList.add('active');
+          } else {
+            header.classList.remove('active');
+          }
+        });
+      }, { threshold: [0.4, 0.6, 0.8] });
 
-    document.querySelectorAll('.section-header').forEach(h => io.observe(h));
-  }
+      document.querySelectorAll('.section-header').forEach(h => io.observe(h));
+    }
 
-  cargarCarta();
+    cargarCarta();
+  });
 });
