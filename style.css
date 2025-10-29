@@ -413,8 +413,7 @@ body.menu-open footer {
   flex: 1 1 30%;
 }
 .menu-dia-opciones .columna:first-child {
-  flex: 2 1 60%; /* la primera (Platos Principales) ocupa el doble */
-  margin: 10px 200px ;
+  flex: 2 1 100%;
   text-align: center;
 }
 
@@ -431,5 +430,15 @@ body.menu-open footer {
   margin-bottom: 6px;
   color: #5a4a4a;
   font-size: 0.95em;
+}
+
+.menu-dia-opciones .columna:first-child li {
+  font-weight: 700; /* todo el texto en negrita */
+}
+
+.menu-dia-opciones .columna:first-child li .parentesis {
+  font-weight: 200; /* normal */
+  font-style: italic;
+  color: #6b5e5e; /* opcional, un gris más suave */
 }
 
