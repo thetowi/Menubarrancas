@@ -6,6 +6,9 @@
   <title>Menú - Restaurante Las Barrancas</title>
   <link rel="stylesheet" href="style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
   <header>
@@ -26,9 +29,10 @@
       <li><a href="#infantil">Infantil</a></li>
       <li><a href="#postres">Postres</a></li>
       <li><a href="#cervezas">Cervezas</a></li>
-      <li><a href="#espumantes">Espumantes<E/a></li>
+      <li><a href="#espumantes">Espumantes</a></li>
       <li><a href="#malbec">Malbec</a></li>
-      <li><a href="#charddonay">Charddonay</a></li>
+      <li><a href="#cabernet">Cabernet</a></li>
+      <li><a href="#chardonnay">Chardonnay</a></li>
       <li><a href="#bebidassinalcohol">Bebidas sin alcohol</a></li>
     </ul>
   </nav>
@@ -186,23 +190,39 @@
       const nav = document.getElementById('menuNav');
 
       if (toggle && nav) {
+        // 🟤 Abrir / cerrar menú
         toggle.addEventListener('click', () => {
           nav.classList.toggle('active');
           document.body.classList.toggle('menu-open');
         });
-
-        // Cierra el menú al hacer clic en un enlace
+        
+        // 🟢 Cierra el menú y hace scroll suave al destino
         document.querySelectorAll('.menu-nav a').forEach(a => {
-          a.addEventListener('click', () => {
+          a.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const id = a.getAttribute('href').substring(1);
+            const target = document.getElementById(id);
+
+            if (target) {
+              const y = target.getBoundingClientRect().top + window.scrollY - 100; // margen superior
+              window.scrollTo({
+                top: y,
+                behavior: 'smooth'
+              });
+            }
+
+            // Cierra el menú después del clic
             nav.classList.remove('active');
             document.body.classList.remove('menu-open');
           });
         });
       } else {
-        console.warn("⚠️ No se encontró menuToggle o menuNav");
+        console.warn("⚠️ No se encontró #menuToggle o #menuNav");
       }
     });
   </script>
+
 
 </body>
 </html>

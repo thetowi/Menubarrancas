@@ -1,10 +1,14 @@
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
   background-color: #faf7f2;
   color: #333;
   margin: 0;
   padding: 0;
 }
+
 
 header {
   position: relative;
@@ -57,13 +61,16 @@ header * {
 
 
 header h1 {
-  font-family: 'Playfair Display', serif;
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 1000;
+  font-style: normal;
   font-size: 4.5em;
   margin-bottom: 5px;
   padding-top: 0px;
 }
 header p {
-  font-family: 'Playfair Display', serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 1.5em;
   letter-spacing: 4px;
   color: #d8c8a0;
@@ -154,6 +161,11 @@ body::before {
   filter: blur(1px); /* difuminado del logo */
   z-index: -1; /* lo manda detrás de todo el contenido */
 }
+body.menu-open::before {
+  filter: blur(1px);
+  opacity: 0.5; /* opcional: lo hace un poco más tenue */
+  transition: ease 0.5s;
+}
 
 /* Botón hamburguesa */
 .menu-toggle {
@@ -226,13 +238,23 @@ body::before {
   width: 220px;
   height: 100vh;
   background: rgba(60, 47, 47, 0.95);
-  backdrop-filter: blur(8px); /* difumina el fondo */
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
   transition: right 0.3s ease;
   z-index: 2000;
   padding-top: 70px;
   border-left: 2px solid #d8c8a0;
+  overflow: hidden; /* importante para ocultar lo que se salga del div */
 }
+
+/* Capa de fondo difuminada */
+.menu-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0; /* ocupa todo el contenedor */
+  filter: blur(8px) brightness(0.5); /* difumina y oscurece un poco */
+  z-index: -1; /* lo pone detrás del contenido del menú */
+}
+
 
 .menu-nav.active {
   right: 0;
@@ -288,7 +310,7 @@ body.menu-open footer {
 
   display: flex;
   align-items: center;
-  padding: 14px 20px;
+  padding: 20px 0px;
   overflow: hidden; /* evita que se vea desbordado al moverlo */
 }
 
