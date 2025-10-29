@@ -21,7 +21,7 @@
 
   <nav class="menu-nav" id="menuNav">
     <ul>
-      <li><a href="#menu-dia">Menú del Día</a></li>
+      <li><a href="#menu-dia" class="menu-dia-link">Menú del Día</a></li>
       <li><a href="#entradas">Entradas</a></li>
       <li><a href="#elaborados">Elaborados</a></li>
       <li><a href="#grillados-guarnicion">Grillados + Guarnición</a></li>
@@ -93,9 +93,34 @@
         const data = snapshot.val();
         console.log("📦 Menú del día:", data);
 
+        // 📅 Control más preciso de horario
         const ahora = new Date();
-        const hora = ahora.getHours() + ahora.getMinutes() / 60;
-        const dentroDelHorario = hora >= 12.5 && hora <= 15;
+        const hora = ahora.getHours();
+        const minutos = ahora.getMinutes();
+        const totalMinutos = hora * 60 + minutos;
+
+        // Horario 12:30 a 15:00 → 750 a 900 minutos del día
+        const dentroDelHorario = totalMinutos >= 10 && totalMinutos <= 10;
+
+        console.log("🕐 Hora actual:", hora + ":" + minutos, "→ Dentro del horario:", dentroDelHorario);
+
+        // Si está dentro del horario, se muestra y se resalta, ACAAAAAAAAAAAAAAAAAAAA ESTA EL ERROR 
+       // === Mostrar u ocultar "Menú del Día" en el menú hamburguesa ===
+        const menuDiaLink = document.querySelector('.menu-dia-link');
+
+        if (menuDiaLink) {
+          if (dentroDelHorario) {
+            menuDiaLink.style.display = 'block';
+            menuDiaLink.classList.add('destacado');
+            console.log("🌟 Menú del Día visible (dentro del horario)");
+          } else {
+            menuDiaLink.style.display = 'none';
+            console.log("🚫 Menú del Día oculto (fuera del horario)");
+          }
+        } else {
+          console.warn("⚠️ No se encontró el enlace .menu-dia-link en el DOM");
+        }
+
 
         const section = document.createElement("section");
         section.className = "menu-dia";

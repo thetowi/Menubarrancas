@@ -641,3 +641,26 @@ body.menu-open footer {
   margin-top: 0;
   line-height: 1.3;
 }
+
+/* ===== ENLACE DORADO DESTACADO ===== */
+.menu-dia-link.destacado {
+  color: #d4af37 !important; /* dorado suave */
+  font-weight: 700;
+  text-shadow: 0 0 6px rgba(212, 175, 55, 0.6);
+  position: relative;
+}
+
+/* efecto brillante al pasar el mouse */
+.menu-dia-link.destacado::after {
+  content: "★";
+  position: absolute;
+  right: -18px;
+  top: 0;
+  color: #e0c060;
+  animation: brillo 2s infinite;
+}
+
+@keyframes brillo {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
