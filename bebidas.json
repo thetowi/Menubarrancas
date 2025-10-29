@@ -1,0 +1,27 @@
+{
+  "Categoria": "Menú del Día",
+  "Horario": "12:30 a 15:00 hs",
+  "Precio": 25000,
+  "Platos": [
+    "Costeletas de cerdo a la riojana con papas españolas",
+    "Pechuga rellena napolitana y salsa de puerros con puré al limón",
+    "Salteado cítrico de ternera y vegetales sobre colchón de arroz",
+    "Milanesa de pescado a la fugazzeta con fideos a la manteca de hierbas",
+    "Wok de río y vegetales",
+    "Malfatis de ricota a nuestro estilo italiano (cherrys, kale y concentrado de tomates asados)",
+    "Ensalada Caesar (verdes, croutons, parmesano, pollo grillado y aderezo Caesar)",
+    "Ensalada de campo y huerta (trío de verdes, pepinos, pickle de rabanitos, tomate y huevo duro con cubos de ricota rebozados, acompañado de crema de palta y clásica vinagreta)",
+    "Ensalada estival (lechuga, kale y espinaca aderezados, tomate, zanahoria y pepinos frescos con pollo grillé a la vinagreta de mostaza acompañado de daditos asados de pimientos, choclo y cebolla)"
+  ],
+  "Postres": [
+    "Flan con dulce de leche",
+    "Trifle de frutillas con crema",
+    "Bocha de helado (americana, dulce de leche, chocolate, frutilla o limón)",
+    "Cremoso de dulce de leche sobre merengues secos y salsa de caramelo con duraznos flameados",
+    "Dúo de budín de pan sobre crema de dulce de leche y crocante garrapiñada"
+  ],
+  "Bebidas": [
+    "Gaseosa o agua",
+    "Copa de vino"
+  ]
+}
