@@ -308,7 +308,7 @@ body.menu-open footer {
   z-index: 100;
   background: #faf7f2;
   border-bottom: 1px solid #d8c8a0;
-
+  margin-bottom: 15px;
   display: flex;
   align-items: center;
   padding: 20px 0px;
@@ -443,3 +443,18 @@ body.menu-open footer {
   color: #6b5e5e; /* opcional, un gris más suave */
 }
 
+.menu-dia {
+  background: linear-gradient(145deg, #fdfaf5 0%, #f4eede 100%);
+  border: 2px solid #d8c8a0;
+  border-radius: 16px;
+  padding: 28px 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  margin: 40px auto;
+  max-width: 1000px;
+  animation: aparecer 0.8s ease-out;
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
