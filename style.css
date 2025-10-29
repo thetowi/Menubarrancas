@@ -458,3 +458,186 @@ body.menu-open footer {
   from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
 }
+@media (max-width: 768px) {
+  .menu-dia {
+    padding: 20px 15px;
+  }
+  .menu-dia-header h2 {
+    font-size: 1.6rem;
+  }
+  .menu-dia-opciones .columna:nth-child(2),
+  .menu-dia-opciones .columna:nth-child(3) {
+    flex: 1 1 100%;
+  }
+}
+
+.menu-dia .texto-adicional {
+  text-align: center;
+  margin: 0px;
+}
+/* ===== MENÚ DEL DÍA ===== */
+.menu-dia {
+  position: relative;
+  background: linear-gradient(145deg, #fdfaf5 0%, #f4eede 100%);
+  border: 2px solid #d8c8a0;
+  border-radius: 16px;
+  padding: 28px 20px 20px 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  margin: 40px auto;
+  max-width: 1000px;
+  animation: aparecer 0.8s ease-out;
+  overflow: hidden;
+}
+
+/* ✨ CINTA DORADA DECORATIVA */
+.menu-dia::before {
+  content: "✨ Especial del Día ✨";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(90deg, #c8a04f, #e7d08c, #c8a04f);
+  color: #fff;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: 1.1rem;
+  padding: 6px 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* Animación de aparición */
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== CABECERA ===== */
+.menu-dia-header {
+  text-align: center;
+  border-bottom: 2px solid #d8c8a0;
+  padding-bottom: 12px;
+  margin-top: 30px; /* espacio para la cinta dorada */
+  margin-bottom: 18px;
+}
+
+.menu-dia-header h2 {
+  font-family: "Poppins", sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #3c2f2f;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.menu-dia-header .horario {
+  font-size: 1.1rem;
+  font-style: italic;
+  color: #7a6b6b;
+  margin-bottom: 6px;
+}
+
+.menu-dia-header .precio {
+  font-weight: 700;
+  color: #2a1d1d;
+  font-size: 1.2rem;
+  margin-top: 4px;
+}
+
+/* ===== OPCIONES ===== */
+.menu-dia-opciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: space-between;
+  margin-top: 25px;
+}
+
+/* Platos principales (ocupa todo el ancho) */
+.menu-dia-opciones .columna:first-child {
+  flex: 1 1 100%;
+  background: #faf5ed;
+  border: 1px solid #e0d3b0;
+  border-radius: 10px;
+  padding: 15px 20px;
+}
+
+/* Postres y bebidas */
+.menu-dia-opciones .columna:nth-child(2),
+.menu-dia-opciones .columna:nth-child(3) {
+  flex: 1 1 48%;
+  background: #fefbf7;
+  border: 1px solid #e8dcc3;
+  border-radius: 10px;
+  padding: 15px;
+}
+
+/* Títulos de columna */
+.menu-dia-opciones h3 {
+  font-size: 1.2rem;
+  border-bottom: 2px solid #d8c8a0;
+  padding-bottom: 4px;
+  color: #3c2f2f;
+  margin-bottom: 8px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Lista */
+.menu-dia-opciones li {
+  list-style: none;
+  margin-bottom: 6px;
+  color: #4a3d3d;
+  font-size: 1rem;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.menu-dia-opciones .columna:first-child li {
+  font-weight: 700;
+}
+
+.menu-dia-opciones .columna:first-child li .parentesis {
+  font-weight: 400;
+  font-style: italic;
+  color: #7a6b6b;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .menu-dia {
+    padding: 20px 15px;
+  }
+  .menu-dia-header h2 {
+    font-size: 1.6rem;
+  }
+  .menu-dia-opciones .columna:nth-child(2),
+  .menu-dia-opciones .columna:nth-child(3) {
+    flex: 1 1 100%;
+  }
+}
+.menu-dia .texto-adicional{
+  width: 100%;
+}
+.menu-dia .texto-adicional {
+  text-align: center;
+  font-size: 18px;
+}
+
+.texto-adicional h4 {
+  font-weight: 700;
+  color: #3c2f2f;
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.texto-adicional h5 {
+  font-style: italic;
+  color: #6b5e5e;
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin-top: 0;
+  line-height: 1.3;
+}
