@@ -83,112 +83,142 @@
     /* ============================================================
       🔥 1️⃣ MENÚ DEL DÍA
     ============================================================ */
-    get(child(ref(db), "entrada/menu-dia"))
-      .then((snapshot) => {
-        if (!snapshot.exists()) {
-          console.warn("⚠️ No hay menú del día");
-          return;
-        }
+    /* ============================================================
+  🔥 1️⃣ MENÚ DEL DÍA con botón "Ver menú igualmente"
+============================================================ */
+  get(child(ref(db), "entrada/menu-dia"))
+    .then((snapshot) => {
+      if (!snapshot.exists()) {
+        console.warn("⚠️ No hay menú del día");
+        return;
+      }
 
-        const data = snapshot.val();
-        console.log("📦 Menú del día:", data);
+      const data = snapshot.val();
+      console.log("📦 Menú del día:", data);
+          // === Estilizar texto entre paréntesis ===
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".menu-dia-opciones li").forEach((li) => {
+        li.innerHTML = li.innerHTML.replace(
+          /\((.*?)\)/g,
+          '<span class="parrafo-parente">($1)</span>'
+        );
+      });
+    });
+      const ahora = new Date();
+      const hora = ahora.getHours();
+      const minutos = ahora.getMinutes();
+      const totalMinutos = hora * 60 + minutos;
 
-        // 📅 Control más preciso de horario
-        const ahora = new Date();
-        const hora = ahora.getHours();
-        const minutos = ahora.getMinutes();
-        const totalMinutos = hora * 60 + minutos;
+      // Horario 12:30 a 15:00 → 750 a 900 minutos del día
+      const dentroDelHorario = totalMinutos >= 750 && totalMinutos <= 900;
 
-        // Horario 12:30 a 15:00 → 750 a 900 minutos del día
-        const dentroDelHorario = totalMinutos >= 750 && totalMinutos <= 900;
+      const section = document.createElement("section");
+      section.className = "menu-dia";
+      section.id = "menu-dia";
 
-        console.log("🕐 Hora actual:", hora + ":" + minutos, "→ Dentro del horario:", dentroDelHorario);
+      // === Header principal ===
+      let headerHTML = `
+        <div class="menu-dia-header ${dentroDelHorario ? "" : "fuera-horario"}">
+          <h2>${data.Categoria} </h2>
+          <p class="horario">Disponible de ${data.Horario}</p>
+          <p class="precio">$${Number(data.Precio).toLocaleString("es-AR")} por persona</p>
+      `;
 
-        // Si está dentro del horario, se muestra y se resalta, ACAAAAAAAAAAAAAAAAAAAA ESTA EL ERROR 
-       // === Mostrar u ocultar "Menú del Día" en el menú hamburguesa ===
-        const menuDiaLink = document.querySelector('.menu-dia-link');
+      // Si está fuera de horario → agregar aviso y botón
+      if (!dentroDelHorario) {
+        headerHTML += `
+          <p class="aviso">❌ El Menú del Día se ofrece únicamente en ese horario. ❌</p>
+          <button id="verMenuIgualmente" class="btn-ver-menu">Ver menú igualmente</button>
+        `;
+      }
 
-        if (menuDiaLink) {
-          if (dentroDelHorario) {
-            menuDiaLink.style.display = 'block';
-            menuDiaLink.classList.add('destacado');
-            console.log("🌟 Menú del Día visible (dentro del horario)");
+      headerHTML += `</div>`;
+      section.innerHTML = headerHTML;
+
+            // === Columnas de platos, postres y bebidas ===
+      const contenido = document.createElement("div");
+      contenido.className = "menu-dia-opciones";
+
+      // (NO usar display:none aquí)
+      contenido.innerHTML = `
+        <div class="columna platos">
+          <h3>Platos Principales</h3>
+          <ul>${(data.Platos || []).map(p => `<li>${p}</li>`).join('')}</ul>
+        </div>
+        <div class="columna postres">
+          <h3>Postres</h3>
+          <ul>${(data.Postres || []).map(p => `<li>${p}</li>`).join('')}</ul>
+        </div>
+        <div class="columna bebidas">
+          <h3>Bebidas</h3>
+          <ul>${(data.Bebidas || []).map(p => `<li>${p}</li>`).join('')}</ul>
+        </div>
+        <div class="texto-adicional">
+          <h4>CASINO MAYORAZGO OBSEQUIA CRÉDITOS PARA QUE TE DIVIERTAS EN LOS SLOTS</h4>
+          <h5>No se realizan cambios sobre los platos ofrecidos y no se pueden compartir. Menú vigente de lunes a viernes al mediodía.</h5>
+        </div>
+      `;
+
+      section.appendChild(contenido);
+      menu.parentNode.insertBefore(section, menu);
+
+      // ===== Estado inicial (según horario) =====
+      function abrirSuave(el) {
+        el.classList.add('open');
+        el.style.maxHeight = el.scrollHeight + 'px';
+      }
+      function cerrarSuave(el) {
+        el.style.maxHeight = '0px';
+        el.classList.remove('open');
+      }
+
+      if (dentroDelHorario) {
+        abrirSuave(contenido);
+      } else {
+        cerrarSuave(contenido);
+      }
+
+      // ===== Botón toggle =====
+      const boton = section.querySelector("#verMenuIgualmente");
+      if (boton) {
+        boton.addEventListener("click", () => {
+          const abierto = contenido.classList.contains('open');
+          if (abierto) {
+            cerrarSuave(contenido);
+            boton.textContent = "Ver menú igualmente";
           } else {
-            menuDiaLink.style.display = 'none';
-            console.log("🚫 Menú del Día oculto (fuera del horario)");
+            abrirSuave(contenido);
+            boton.textContent = "Ocultar menú";
+            // re-formatea paréntesis al abrir
+            formatearParentesis(section);
           }
-        } else {
-          console.warn("⚠️ No se encontró el enlace .menu-dia-link en el DOM");
+        });
+      }
+
+      // ===== Ajuste por resize (recalcular altura cuando está abierto) =====
+      window.addEventListener('resize', () => {
+        if (contenido.classList.contains('open')) {
+          contenido.style.maxHeight = contenido.scrollHeight + 'px';
         }
-
-
-        const section = document.createElement("section");
-        section.className = "menu-dia";
-        section.id = "menu-dia";
-
-        if (dentroDelHorario) {
-          // 🕛 Mostrar menú completo
-          section.innerHTML = `
-            <div class="menu-dia-header">
-              <h2>${data.Categoria} 🍽️</h2>
-              <p class="horario">Disponible de ${data.Horario}</p>
-              <p class="precio">$${Number(data.Precio).toLocaleString("es-AR")} por persona</p>
-            </div>
-            <div class="menu-dia-opciones">
-              <div class="columna">
-                <h3>Platos Principales</h3>
-                <ul>${(data.Platos || []).map(p => `<li>${p}</li>`).join('')}</ul>
-              </div>
-              <div class="columna">
-                <h3>Postres</h3>
-                <ul>${(data.Postres || []).map(p => `<li>${p}</li>`).join('')}</ul>
-              </div>
-              <div class="columna">
-                <h3>Bebidas</h3>
-                <ul>${(data.Bebidas || []).map(p => `<li>${p}</li>`).join('')}</ul>
-              </div>
-              <div class="texto-adicional">
-                <h4>🎰CASINO MAYORAZGO OBSEQUIA CREDITOS PARA QUE TE DIVIERTAS EN LOS SLOTS🎰</h4>
-                <h5>No se realizan cambios sobre los platos ofrecidos y no se pueden compartir. Menú vigente de lunes a viernes al mediodía.</h5>
-              </div>
-            </div>
-          `;
-        } else {
-          // 🕐 Mostrar solo aviso fuera de horario
-          section.innerHTML = `
-            <div class="menu-dia-header fuera-horario">
-              <h2>${data.Categoria} 🍽️</h2>
-              <p class="horario">Disponible de ${data.Horario}</p>
-              <p class="aviso">❌ El Menú del Día se ofrece únicamente en ese horario❌.</p>
-            </div>
-            <div class="menu-dia-opciones">
-              <div class="columna">
-                <h3>Platos Principales</h3>
-                <ul>${(data.Platos || []).map(p => `<li>${p}</li>`).join('')}</ul>
-              </div>
-              <div class="columna">
-                <h3>Postres</h3>
-                <ul>${(data.Postres || []).map(p => `<li>${p}</li>`).join('')}</ul>
-              </div>
-              <div class="columna">
-                <h3>Bebidas</h3>
-                <ul>${(data.Bebidas || []).map(p => `<li>${p}</li>`).join('')}</ul>
-              </div>
-            </div>
-          `;
-        }
-
-        // Insertar al inicio del menú
-        menu.parentNode.insertBefore(section, menu);
-
-        // Luego de mostrar el menú del día → cargar platos
-        cargarPlatos();
-      })
-      .catch((error) => {
-        console.error("💥 Error al cargar el Menú del Día:", error);
-        cargarPlatos();
       });
 
+      // Luego cargamos el resto del menú
+      cargarPlatos();
+    })
+    .catch((error) => {
+      console.error("💥 Error al cargar el Menú del Día:", error);
+      cargarPlatos();
+    });
+
+    // === Función para aplicar estilo al texto entre paréntesis ===
+    function formatearParentesis(scope = document) {
+      scope.querySelectorAll(".menu-dia-opciones li").forEach(li => {
+        li.innerHTML = li.innerHTML.replace(
+          /\((.*?)\)/g,
+          '<span class="parrafo-parente">($1)</span>'
+        );
+      });
+    }
     /* ============================================================
       🔥 2️⃣ PLATOS
     ============================================================ */
@@ -332,7 +362,14 @@
       }
     });
   </script>
-
-
+  <!-- 🟢 Botón flotante de WhatsApp -->
+  <a href="https://wa.me/541165392315?text=¡Hola!%20Quisiera%20hacer%20una%20reserva%20en%20Las%20Barrancas." 
+    class="whatsapp-float" 
+    target="_blank" 
+    aria-label="Chat con Las Barrancas por WhatsApp">
+    <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" 
+        alt="WhatsApp" 
+        class="whatsapp-icon">
+  </a>
 </body>
 </html>

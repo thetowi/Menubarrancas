@@ -547,12 +547,23 @@ body.menu-open footer {
 
 /* ===== OPCIONES ===== */
 .menu-dia-opciones {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  justify-content: space-between;
-  margin-top: 25px;
+  overflow: hidden;
+  max-height: 0;          /* cerrado por defecto */
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    max-height 0.6s ease,
+    opacity 0.4s ease,
+    transform 0.4s ease;
 }
+
+/* estado abierto */
+.menu-dia-opciones.open {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
 
 /* Platos principales (ocupa todo el ancho) */
 .menu-dia-opciones .columna:first-child {
@@ -586,12 +597,13 @@ body.menu-open footer {
 
 /* Lista */
 .menu-dia-opciones li {
-  list-style: none;
+  list-style-type: disc;
   margin-bottom: 6px;
   color: #4a3d3d;
   font-size: 1rem;
   line-height: 1.4;
   text-align: left;
+
 }
 
 .menu-dia-opciones .columna:first-child li {
@@ -663,4 +675,65 @@ body.menu-open footer {
 @keyframes brillo {
   0%, 100% { opacity: 0.4; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.2); }
+}
+
+.btn-ver-menu {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 16px;
+  background-color: #d8c38a;
+  color: #3c2f2f;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+
+.btn-ver-menu:hover {
+  background-color: #c8b473;
+  transform: scale(1.03);
+}
+
+.btn-ver-menu:active {
+  transform: scale(0.98);
+}
+.menu-dia-opciones li:hover {
+  color: #3c2f2f;
+  transform: translateX(2px);
+  transition: all 0.2s ease;
+}
+.parrafo-parente {
+  font-style: italic;
+  font-weight: 400;
+  color: #5a4a4a;
+  font-family: "Montserrat", sans-serif; /* o la que prefieras */
+}
+
+/* === BOTÓN FLOTANTE DE WHATSAPP === */
+.whatsapp-float {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 3000;
+  background-color: #25D366;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.1);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+.whatsapp-icon {
+  width: 35px;
+  height: 35px;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.2));
 }
