@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Menú - Restaurante Las Barrancas</title>
+
   <link rel="stylesheet" href="style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,8 +18,10 @@
     <img src="logobb.png" alt="Logo Las Barrancas" class="logo-header">
   </header>
 
+  <!-- Botón hamburguesa -->
   <div class="menu-toggle" id="menuToggle">☰</div>
 
+  <!-- Menú lateral -->
   <nav class="menu-nav" id="menuNav">
     <ul>
       <li><a href="#menu-dia" class="menu-dia-link">Menú del Día</a></li>
@@ -45,6 +48,7 @@
     <p>© 2025 Las Barrancas</p>
   </footer>
 
+  <!-- 🔸 Script para animar títulos al hacer scroll -->
   <script>
     window.addEventListener("load", () => {
       const observer = new IntersectionObserver((entries) => {
@@ -61,7 +65,7 @@
     });
   </script>
 
-  <!-- Firebase -->
+  <!-- 🔥 Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
     import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
@@ -80,212 +84,127 @@
     const db = getDatabase(app);
     const menu = document.getElementById("menu");
 
-    /* ============================================================
-      🔥 1️⃣ MENÚ DEL DÍA
-    ============================================================ */
-    /* ============================================================
-  🔥 1️⃣ MENÚ DEL DÍA con botón "Ver menú igualmente"
-============================================================ */
-  get(child(ref(db), "entrada/menu-dia"))
-    .then((snapshot) => {
-      if (!snapshot.exists()) {
-        console.warn("⚠️ No hay menú del día");
-        return;
-      }
-
-      const data = snapshot.val();
-      console.log("📦 Menú del día:", data);
-          // === Estilizar texto entre paréntesis ===
-    document.addEventListener("DOMContentLoaded", () => {
-      document.querySelectorAll(".menu-dia-opciones li").forEach((li) => {
-        li.innerHTML = li.innerHTML.replace(
-          /\((.*?)\)/g,
-          '<span class="parrafo-parente">($1)</span>'
-        );
-      });
-    });
-      const ahora = new Date();
-      const hora = ahora.getHours();
-      const minutos = ahora.getMinutes();
-      const totalMinutos = hora * 60 + minutos;
-
-      // Horario 12:30 a 15:00 → 750 a 900 minutos del día
-      const dentroDelHorario = totalMinutos >= 750 && totalMinutos <= 900;
-
-      const section = document.createElement("section");
-      section.className = "menu-dia";
-      section.id = "menu-dia";
-
-      // === Header principal ===
-      let headerHTML = `
-        <div class="menu-dia-header ${dentroDelHorario ? "" : "fuera-horario"}">
-          <h2>${data.Categoria} </h2>
-          <p class="horario">Disponible de ${data.Horario}</p>
-          <p class="precio">$${Number(data.Precio).toLocaleString("es-AR")} por persona</p>
-      `;
-
-      // Si está fuera de horario → agregar aviso y botón
-      if (!dentroDelHorario) {
-        headerHTML += `
-          <p class="aviso">❌ El Menú del Día se ofrece únicamente en ese horario. ❌</p>
-          <button id="verMenuIgualmente" class="btn-ver-menu">Ver menú igualmente</button>
-        `;
-      }
-
-      headerHTML += `</div>`;
-      section.innerHTML = headerHTML;
-
-            // === Columnas de platos, postres y bebidas ===
-      const contenido = document.createElement("div");
-      contenido.className = "menu-dia-opciones";
-
-      // (NO usar display:none aquí)
-      contenido.innerHTML = `
-        <div class="columna platos">
-          <h3>Platos Principales</h3>
-          <ul>${(data.Platos || []).map(p => `<li>${p}</li>`).join('')}</ul>
-        </div>
-        <div class="columna postres">
-          <h3>Postres</h3>
-          <ul>${(data.Postres || []).map(p => `<li>${p}</li>`).join('')}</ul>
-        </div>
-        <div class="columna bebidas">
-          <h3>Bebidas</h3>
-          <ul>${(data.Bebidas || []).map(p => `<li>${p}</li>`).join('')}</ul>
-        </div>
-        <div class="texto-adicional">
-          <h4>CASINO MAYORAZGO OBSEQUIA CRÉDITOS PARA QUE TE DIVIERTAS EN LOS SLOTS</h4>
-          <h5>No se realizan cambios sobre los platos ofrecidos y no se pueden compartir. Menú vigente de lunes a viernes al mediodía.</h5>
-        </div>
-      `;
-
-      section.appendChild(contenido);
-      menu.parentNode.insertBefore(section, menu);
-
-      // ===== Estado inicial (según horario) =====
-      function abrirSuave(el) {
-        el.classList.add('open');
-        el.style.maxHeight = el.scrollHeight + 'px';
-      }
-      function cerrarSuave(el) {
-        el.style.maxHeight = '0px';
-        el.classList.remove('open');
-      }
-
-      if (dentroDelHorario) {
-        abrirSuave(contenido);
-      } else {
-        cerrarSuave(contenido);
-      }
-
-      // ===== Botón toggle =====
-      const boton = section.querySelector("#verMenuIgualmente");
-      if (boton) {
-        boton.addEventListener("click", () => {
-          const abierto = contenido.classList.contains('open');
-          if (abierto) {
-            cerrarSuave(contenido);
-            boton.textContent = "Ver menú igualmente";
-          } else {
-            abrirSuave(contenido);
-            boton.textContent = "Ocultar menú";
-            // re-formatea paréntesis al abrir
-            formatearParentesis(section);
-          }
-        });
-      }
-
-      // ===== Ajuste por resize (recalcular altura cuando está abierto) =====
-      window.addEventListener('resize', () => {
-        if (contenido.classList.contains('open')) {
-          contenido.style.maxHeight = contenido.scrollHeight + 'px';
+    // === CARGAR MENÚ DEL DÍA ===
+    get(child(ref(db), "entrada/menu-dia"))
+      .then((snapshot) => {
+        if (!snapshot.exists()) {
+          console.warn("⚠️ No hay menú del día");
+          return;
         }
+
+        const data = snapshot.val();
+        console.log("📦 Menú del día:", data);
+
+        const ahora = new Date();
+        const hora = ahora.getHours();
+        const minutos = ahora.getMinutes();
+        const totalMinutos = hora * 60 + minutos;
+        const dentroDelHorario = totalMinutos >= 750 && totalMinutos <= 900;
+
+        const section = document.createElement("section");
+        section.className = "menu-dia";
+        section.id = "menu-dia";
+
+        // Cabecera
+        let headerHTML = `
+          <div class="menu-dia-header ${dentroDelHorario ? "" : "fuera-horario"}">
+            <h2>${data.Categoria}</h2>
+            <p class="horario">Disponible de ${data.Horario}</p>
+            <p class="precio">$${Number(data.Precio).toLocaleString("es-AR")} por persona</p>
+        `;
+
+        if (!dentroDelHorario) {
+          headerHTML += `
+            <p class="aviso">❌ El Menú del Día se ofrece únicamente en ese horario. ❌</p>
+            <button id="verMenuIgualmente" class="btn-ver-menu">Ver menú igualmente</button>
+          `;
+        }
+
+        headerHTML += `</div>`;
+        section.innerHTML = headerHTML;
+
+        const contenido = document.createElement("div");
+        contenido.className = "menu-dia-opciones";
+        contenido.innerHTML = `
+          <div class="columna platos">
+            <h3>Platos Principales</h3>
+            <ul>${(data.Platos || []).map(p => `<li>${p}</li>`).join('')}</ul>
+          </div>
+          <div class="columna postres">
+            <h3>Postres</h3>
+            <ul>${(data.Postres || []).map(p => `<li>${p}</li>`).join('')}</ul>
+          </div>
+          <div class="columna bebidas">
+            <h3>Bebidas</h3>
+            <ul>${(data.Bebidas || []).map(p => `<li>${p}</li>`).join('')}</ul>
+          </div>
+          <div class="texto-adicional">
+            <h4>CASINO MAYORAZGO OBSEQUIA CRÉDITOS PARA QUE TE DIVIERTAS EN LOS SLOTS</h4>
+            <h5>No se realizan cambios sobre los platos ofrecidos y no se pueden compartir. Menú vigente de lunes a viernes al mediodía.</h5>
+          </div>
+        `;
+
+        section.appendChild(contenido);
+        menu.parentNode.insertBefore(section, menu);
+
+        function abrirSuave(el) {
+          el.classList.add('open');
+          el.style.maxHeight = el.scrollHeight + 'px';
+        }
+        function cerrarSuave(el) {
+          el.style.maxHeight = '0px';
+          el.classList.remove('open');
+        }
+
+        if (dentroDelHorario) abrirSuave(contenido);
+        else cerrarSuave(contenido);
+
+        const boton = section.querySelector("#verMenuIgualmente");
+        if (boton) {
+          boton.addEventListener("click", () => {
+            const abierto = contenido.classList.contains('open');
+            if (abierto) {
+              cerrarSuave(contenido);
+              boton.textContent = "Ver menú igualmente";
+            } else {
+              abrirSuave(contenido);
+              boton.textContent = "Ocultar menú";
+            }
+          });
+        }
+
+        // Cargar platos y bebidas después
+        cargarPlatos();
+      })
+      .catch((error) => {
+        console.error("💥 Error al cargar el Menú del Día:", error);
+        cargarPlatos();
       });
 
-      // Luego cargamos el resto del menú
-      cargarPlatos();
-    })
-    .catch((error) => {
-      console.error("💥 Error al cargar el Menú del Día:", error);
-      cargarPlatos();
-    });
-
-    // === Función para aplicar estilo al texto entre paréntesis ===
-    function formatearParentesis(scope = document) {
-      scope.querySelectorAll(".menu-dia-opciones li").forEach(li => {
-        li.innerHTML = li.innerHTML.replace(
-          /\((.*?)\)/g,
-          '<span class="parrafo-parente">($1)</span>'
-        );
-      });
-    }
-    /* ============================================================
-      🔥 2️⃣ PLATOS
-    ============================================================ */
+    // === CARGAR PLATOS ===
     function cargarPlatos() {
       get(child(ref(db), "entrada/platos"))
         .then((snapshot) => {
-          if (!snapshot.exists()) {
-            console.warn("⚠️ No hay datos de platos");
-            menu.innerHTML = "<p>No hay datos disponibles.</p>";
-            return;
-          }
-
+          if (!snapshot.exists()) return;
           const data = snapshot.val();
           console.log("📦 Datos cargados desde Firebase (platos):", data);
-
-          Object.entries(data).forEach(([categoriaId, categoriaData]) => {
-            renderCategoria(categoriaId, categoriaData);
-          });
-
-          // Luego de los platos → cargar bebidas
+          Object.entries(data).forEach(([id, cat]) => renderCategoria(id, cat));
           cargarBebidas();
-        })
-        .catch((error) => {
-          console.error("💥 Error al leer los platos:", error);
         });
     }
 
-    /* ============================================================
-      🔥 3️⃣ BEBIDAS
-    ============================================================ */
+    // === CARGAR BEBIDAS ===
     function cargarBebidas() {
       get(child(ref(db), "entrada/bebidas"))
         .then((snapshot) => {
-          if (!snapshot.exists()) {
-            console.warn("⚠️ No hay bebidas disponibles");
-            return;
-          }
-
+          if (!snapshot.exists()) return;
           const data = snapshot.val();
           console.log("🍷 Datos cargados desde Firebase (bebidas):", data);
-
-          Object.entries(data).forEach(([grupoId, grupo]) => {
-            if (grupo.Categoria && (grupo.Platos || grupo.Bebidas)) {
-              renderCategoria(grupoId, grupo);
-            } else {
-              Object.entries(grupo).forEach(([subId, subData]) => {
-                if (subData.Categoria) {
-                  renderCategoria(subId, subData);
-                } else if (typeof subData === "object") {
-                  Object.entries(subData).forEach(([subSubId, subSubData]) => {
-                    if (subSubData.Categoria) renderCategoria(subSubId, subSubData);
-                  });
-                }
-              });
-            }
-          });
-
-          console.log("✅ Bebidas renderizadas correctamente");
-        })
-        .catch((error) => {
-          console.error("💥 Error al leer las bebidas:", error);
+          Object.entries(data).forEach(([id, cat]) => renderCategoria(id, cat));
         });
     }
 
-    /* ============================================================
-      🔧 FUNCIÓN REUTILIZABLE
-    ============================================================ */
+    // === RENDERIZAR SECCIONES ===
     function renderCategoria(id, data) {
       const section = document.createElement("section");
       section.className = "menu-section";
@@ -302,11 +221,9 @@
       Object.values(items).forEach((item) => {
         const div = document.createElement("div");
         div.className = "menu-item";
-
         const nombre = item.Plato || item.bebida || "";
         const desc = item.Descripcion || "";
         const precio = item.Precio || item.precio;
-
         div.innerHTML = `
           <div class="info">
             <h3>${nombre}</h3>
@@ -314,7 +231,6 @@
           </div>
           <span class="price">${precio ? "$" + Number(precio).toLocaleString("es-AR") : ""}</span>
         `;
-
         section.appendChild(div);
       });
 
@@ -322,46 +238,6 @@
     }
   </script>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log("✅ Menú hamburguesa activo");
-
-      const toggle = document.getElementById('menuToggle');
-      const nav = document.getElementById('menuNav');
-
-      if (toggle && nav) {
-        // 🟤 Abrir / cerrar menú
-        toggle.addEventListener('click', () => {
-          nav.classList.toggle('active');
-          document.body.classList.toggle('menu-open');
-        });
-        
-        // 🟢 Cierra el menú y hace scroll suave al destino
-        document.querySelectorAll('.menu-nav a').forEach(a => {
-          a.addEventListener('click', (e) => {
-            e.preventDefault();
-
-            const id = a.getAttribute('href').substring(1);
-            const target = document.getElementById(id);
-
-            if (target) {
-              const y = target.getBoundingClientRect().top + window.scrollY - 100; // margen superior
-              window.scrollTo({
-                top: y,
-                behavior: 'smooth'
-              });
-            }
-
-            // Cierra el menú después del clic
-            nav.classList.remove('active');
-            document.body.classList.remove('menu-open');
-          });
-        });
-      } else {
-        console.warn("⚠️ No se encontró #menuToggle o #menuNav");
-      }
-    });
-  </script>
   <!-- 🟢 Botón flotante de WhatsApp -->
   <a href="https://wa.me/541165392315?text=¡Hola!%20Quisiera%20hacer%20una%20reserva%20en%20Las%20Barrancas." 
     class="whatsapp-float" 
@@ -371,6 +247,8 @@
         alt="WhatsApp" 
         class="whatsapp-icon">
   </a>
+
+  <!-- 🌍 Traductor -->
   <script type="text/javascript">
     function googleTranslateElementInit() {
       new google.translate.TranslateElement({
@@ -382,5 +260,7 @@
   </script>
   <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
+  <!-- ⚙️ Script principal -->
+  <script src="scripts.js"></script>
 </body>
 </html>

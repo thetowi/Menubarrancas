@@ -1,7 +1,24 @@
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('✅ DOM listo, iniciando app');
 
-  // ===== MENÚ HAMBURGUESA + SCROLL =====
+  // === DESTACAR "MENÚ DEL DÍA" SI ESTÁ EN HORARIO ===
+  const ahora = new Date();
+  const hora = ahora.getHours();
+  const minutos = ahora.getMinutes();
+  const totalMinutos = hora * 60 + minutos;
+  // Horario de 12:30 a 15:00 (750 a 900 minutos)
+  const dentroDelHorario = totalMinutos >= 750 && totalMinutos <= 900;
+
+  const menuDiaLink = document.querySelector(".menu-dia-link");
+
+  if (menuDiaLink) {
+    if (dentroDelHorario) {
+      menuDiaLink.classList.add("destacado");
+    } else {
+      menuDiaLink.classList.remove("destacado");
+    }
+  }
+  // ===== MENÚ HAMBURGUESA + SCROLL SUAVE =====
   const toggle = document.getElementById('menuToggle');
   const nav = document.getElementById('menuNav');
 
@@ -100,7 +117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
 
-    // ===== EFECTO DE SCROLL EN LOS TITULOS =====
+    // ===== EFECTO DE SCROLL EN LOS TÍTULOS =====
     function iniciarEfectoScroll() {
       const io = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
