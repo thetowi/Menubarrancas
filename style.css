@@ -737,3 +737,41 @@ body.menu-open footer {
   height: 35px;
   filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.2));
 }
+.traductor {
+  margin: 15px auto;
+  text-align: center;
+}
+
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+body {
+  top: 0px !important;
+}
+
+.goog-te-gadget {
+  font-size: 14px !important;
+  color: #3c2f2f !important;
+}
+
+/* Contenedor general de cada plato */
+.plato-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 12px;
+  padding: 10px;
+  margin: 20px auto;
+  max-width: 350px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.plato-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
