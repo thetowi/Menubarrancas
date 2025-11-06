@@ -19,15 +19,7 @@ header {
   border-bottom: 2px solid #d8c8a0;
   overflow: hidden;
 }
-@media (max-width: 600px) {
-  header h1 {
-    font-size: 22px;
-  }
 
-  header p {
-    font-size: 10px;
-  }
-}
 
 
 .logo-header {
@@ -78,7 +70,7 @@ header h1 {
   font-style: normal;
   font-size: 4.5em;
   margin-bottom: 5px;
-  padding-top: 100px;
+  padding-top: 100px;  
 }
 header p {
   font-family: "Montserrat", sans-serif;
@@ -88,7 +80,19 @@ header p {
   font-weight: 400;
   text-transform: uppercase;
 }
+@media (max-width: 600px) {
+  header h1 {
+    font-weight: 1600;
+    font-size: 3.0em;
+    text-align: center;
+  }
 
+  header p {
+    font-weight: 250;
+    font-size: 1.0em;
+    text-align: center;
+  }
+}
 header p {
   font-style: italic;
   color: #d8c8a0;
@@ -775,3 +779,46 @@ body {
   color: #e0c060;
   animation: brillo 2s infinite;
 }
+.subcategoria {
+  margin-top: 20px;
+  border-top: 1px solid #d8c8a0;
+  padding-top: 15px;
+}
+
+.subcategoria h3 {
+  color: #3c2f2f;
+  font-weight: 600;
+  margin-bottom: 10px;
+  text-transform: capitalize;
+}
+
+.subcategoria .menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px linen #ccc;
+}
+
+.subcategoria .menu-item h4 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.price {
+  text-align: right;
+  font-style: italic;
+  line-height: 1.2;
+}
+
+.price .iva {
+  font-size: 0.5rem;
+  color: #8f8f8f;
+  opacity: 0.8;
+}
+.precio .iva {
+  font-size: 0.7rem;
+  color: #8f8f8f;
+  opacity: 0.8;
+}
+

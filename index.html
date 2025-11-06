@@ -110,7 +110,11 @@
           <div class="menu-dia-header ${dentroDelHorario ? "" : "fuera-horario"}">
             <h2>${data.Categoria}</h2>
             <p class="horario">Disponible de ${data.Horario}</p>
-            <p class="precio">$${Number(data.Precio).toLocaleString("es-AR")} por persona</p>
+            <p class="precio">
+              $${Number(data.Precio).toLocaleString("es-AR")} por persona
+              <br>
+              <small class="iva"><em>S/IMP. NAC: $${(Number(data.Precio) * 0.8265).toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</em></small>
+            </p>
         `;
 
         if (!dentroDelHorario) {
@@ -188,21 +192,148 @@
           if (!snapshot.exists()) return;
           const data = snapshot.val();
           console.log("📦 Datos cargados desde Firebase (platos):", data);
-          Object.entries(data).forEach(([id, cat]) => renderCategoria(id, cat));
+                // 🔹 Queremos que "entradas" se muestre primero
+          const orden = [
+            "entradas",
+            "elaborados",
+            "grillados-guarnicion",
+            "guarnicion",
+            "pastas",
+            "ensaladas",
+            "infantil",
+            "postres"
+          ];
+
+          // Recorremos en orden predefinido si existe en Firebase
+          orden.forEach((clave) => {
+            if (data[clave]) {
+              renderCategoria(clave, data[clave]);
+            }
+          });
+
+          // Si Firebase tiene alguna categoría extra no listada, se muestran después
+          Object.entries(data).forEach(([id, cat]) => {
+            if (!orden.includes(id)) {
+              renderCategoria(id, cat);
+            }
+          });
           cargarBebidas();
         });
     }
 
     // === CARGAR BEBIDAS ===
+
     function cargarBebidas() {
       get(child(ref(db), "entrada/bebidas"))
         .then((snapshot) => {
           if (!snapshot.exists()) return;
           const data = snapshot.val();
           console.log("🍷 Datos cargados desde Firebase (bebidas):", data);
-          Object.entries(data).forEach(([id, cat]) => renderCategoria(id, cat));
+
+          Object.entries(data).forEach(([id, cat]) => {
+            if (id === "con-alcohol") cat.Categoria = "Bebidas con alcohol";
+            // Si tiene subcategorías (Malbec, Cabernet, etc.)
+            if (
+              typeof cat === "object" &&
+              !cat.Platos &&
+              !cat.Bebidas &&
+              Object.keys(cat).length > 0
+            ) {
+              Object.entries(cat).forEach(([subId, subData]) => {
+                
+
+
+                // 💡 Convertimos el nombre a formato de ID válido (sin espacios, sin tildes, todo en minúsculas)
+                const cleanId = subId
+                  .toLowerCase()
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "") // quita tildes
+                  .replace(/\s+/g, ""); // quita espacios
+
+                const section = document.createElement("section");
+                section.className = "menu-section";
+                section.id = cleanId;
+                console.log("🟢 ID:", id, "CAT:", cat);
+                const headerDiv = document.createElement("div");
+                headerDiv.className = "section-header";
+                const h2 = document.createElement("h2");
+                let displayTitle = subData.Categoria;
+                h2.textContent = displayTitle;
+                headerDiv.appendChild(h2);
+                section.appendChild(headerDiv);
+
+                const items = subData.Platos || subData.Bebidas || [];
+                Object.values(items).forEach((item) => {
+                  const div = document.createElement("div");
+                  div.className = "menu-item";
+                  const nombre = item.Plato || item.bebida || "";
+                  const desc = item.Descripcion || "";
+                  const precio = item.Precio || item.precio;
+                  div.innerHTML = `
+                    <div class="info">
+                      <h3>${nombre}</h3>
+                      <p>${desc}</p>
+                    </div>
+                    <span class="price">
+                      ${precio ? "$" + Number(precio).toLocaleString("es-AR") : ""}
+                      <br>
+                      <small class="iva">S/IMP. NAC: $${precio ? (Number(precio) * 0.8265).toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : ""}</small>
+                    </span>
+                  `;
+                  section.appendChild(div);
+                });
+
+                menu.appendChild(section);
+              });
+            } else {
+              // También limpiamos IDs de las bebidas principales (cervezas, espumantes, sin alcohol)
+              let cleanId = id
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/\s+/g, "");
+              if (cleanId.includes("bebidasin") || cleanId.includes("bebidas-sin")) {
+                cleanId = "sin-alcohol";
+              }
+              const section = document.createElement("section");
+              section.className = "menu-section";
+              section.id = cleanId;
+
+              const headerDiv = document.createElement("div");
+              headerDiv.className = "section-header";
+              const h2 = document.createElement("h2");
+              h2.textContent = cat.Categoria || id;
+              headerDiv.appendChild(h2);
+              section.appendChild(headerDiv);
+
+              const items = cat.Platos || cat.Bebidas || [];
+              Object.values(items).forEach((item) => {
+                const div = document.createElement("div");
+                div.className = "menu-item";
+                const nombre = item.Plato || item.bebida || "";
+                const desc = item.Descripcion || "";
+                const precio = item.Precio || item.precio;
+                div.innerHTML = `
+                  <div class="info">
+                    <h3>${nombre}</h3>
+                    <p>${desc}</p>
+                  </div>
+                  <span class="price">
+                    ${precio ? "$" + Number(precio).toLocaleString("es-AR") : ""}
+                    <br>
+                    <small class="iva">S/IMP. NAC: $${precio ? (Number(precio) * 0.8265).toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : ""}</small>
+                  </span>
+                `;
+                section.appendChild(div);
+              });
+
+              menu.appendChild(section);
+            }
+          });
         });
     }
+
+
 
     // === RENDERIZAR SECCIONES ===
     function renderCategoria(id, data) {
@@ -212,6 +343,7 @@
 
       const headerDiv = document.createElement("div");
       headerDiv.className = "section-header";
+      if (id === "guarnicion") data.Categoria = "Guarnición";
       const h2 = document.createElement("h2");
       h2.textContent = data.Categoria || id;
       headerDiv.appendChild(h2);
@@ -229,7 +361,19 @@
             <h3>${nombre}</h3>
             <p>${desc}</p>
           </div>
-          <span class="price">${precio ? "$" + Number(precio).toLocaleString("es-AR") : ""}</span>
+          <span class="price">
+            ${
+              precio
+                ? `$${Number(precio).toLocaleString("es-AR")}`
+                : ""
+            }
+            ${
+              precio
+                ? `<br><small class="iva"><em>S/IMP. NAC: $${(Number(precio) * 0.8265).toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</em></small>`
+                : ""
+            }
+          </span>
+
         `;
         section.appendChild(div);
       });
