@@ -229,7 +229,22 @@
           if (!snapshot.exists()) return;
           const data = snapshot.val();
           console.log("🍷 Datos cargados desde Firebase (bebidas):", data);
+          // Orden personalizado
+          const orden = [
+            "bebidas-sin-alcohol",
+            "cervezas",
+            "malbec",
+            "cabernet",
+            "chardonnay",
+            "espumantes"
+          ];
+          orden.forEach((clave) => {
+            if (data[clave]) {
+              renderBebidaCategoria(clave, data[clave]);
+            }
+          });
 
+          // Recorremos en orden predefinido si existe en Firebase
           Object.entries(data).forEach(([id, cat]) => {
             if (id === "con-alcohol") cat.Categoria = "Bebidas con alcohol";
             // Si tiene subcategorías (Malbec, Cabernet, etc.)
@@ -356,7 +371,12 @@
         const nombre = item.Plato || item.bebida || "";
         const desc = item.Descripcion || "";
         const precio = item.Precio || item.precio;
+        const imagen = item.Imagen || "";
+        console.log("🧩 Plato:", nombre);
+        console.log("🖼️ Imagen:", imagen);
+        div.className = imagen ? "menu-item con-imagen" : "menu-item";
         div.innerHTML = `
+          ${imagen ? `<div class="menu-img-wrapper"><img src="${imagen}" alt="${nombre}" class="menu-img"></div>` : ""}
           <div class="info">
             <h3>${nombre}</h3>
             <p>${desc}</p>

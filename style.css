@@ -102,6 +102,7 @@ header p {
   max-width: 800px;
   margin: 40px auto;
   padding: 0 20px;
+  
 }
 
 .menu-section h2 {
@@ -352,6 +353,8 @@ body.menu-open footer {
   opacity: 1;
   color: #2a1d1d;
 }
+
+
 
 
 .menu-dia-header.fuera-horario {
@@ -820,5 +823,93 @@ body {
   font-size: 0.7rem;
   color: #8f8f8f;
   opacity: 0.8;
+}
+
+/* === PLATOS CON IMAGEN (ESTILO OSCURO CENTRADO) === */
+.menu-item.con-imagen {
+  text-align: center;
+  
+  transform-origin: center center; /* crece hacia adentro */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #1f1f1f; /* fondo oscuro */
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  margin: 25px 0;
+  text-align: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.menu-item.con-imagen:hover .menu-content {
+  transform: scale(1.05);
+  transition: ease 0.3s;
+}
+.menu-item.con-imagen:hover h3 {
+  transform: scale(1.05);
+  transition: ease 0.3s;
+}
+.menu-item.con-imagen:hover .price {
+  transform: scale(1.05);
+  transition: ease 0.3s;
+}
+.menu-item.con-imagen:hover .iva {
+  transform: scale(1.05);
+  transition: ease 0.3s;
+}
+
+/* 📷 Imagen centrada grande */
+.menu-item.con-imagen .menu-img-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.menu-item.con-imagen .menu-img {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+  transition: transform 0.3s ease;
+}
+
+.menu-item.con-imagen:hover .menu-img {
+  transform: scale(1.04);
+}
+
+/* 📖 Texto y precio debajo */
+.menu-item.con-imagen .info {
+  width: 100%;
+  padding: 10px 0;
+}
+
+.menu-item.con-imagen h3 {
+    text-align: center;
+  font-size: 1.5rem;
+  color: #f5e2b8; /* dorado cálido */
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.menu-item.con-imagen p {
+    text-align: center;
+  font-style: italic;
+  color: #d9d9d9;
+  margin-bottom: 10px;
+}
+
+.menu-item.con-imagen .price {
+    text-align: center;
+  font-weight: 700;
+  color: #f5e2b8;
+  font-size: 1.2rem;
+}
+
+.menu-item.con-imagen .iva {
+    text-align: center;
+  font-size: 0.9rem;
+  color: #cfc7a7;
 }
 
