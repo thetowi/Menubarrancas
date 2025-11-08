@@ -371,7 +371,11 @@
         const nombre = item.Plato || item.bebida || "";
         const desc = item.Descripcion || "";
         const precio = item.Precio || item.precio;
-        const imagen = item.Imagen || "";
+        const base = window.location.hostname.includes("github.io")
+          ? "./"
+          : "";
+        const imagen = item.Imagen ? `${base}${item.Imagen}` : "";
+
         console.log("🧩 Plato:", nombre);
         console.log("🖼️ Imagen:", imagen);
         div.className = imagen ? "menu-item con-imagen" : "menu-item";
