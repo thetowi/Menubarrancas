@@ -132,6 +132,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       document.querySelectorAll('.section-header').forEach(h => io.observe(h));
     }
+    window.addEventListener("scroll", () => {
+      document.querySelectorAll(".section-header").forEach(header => {
+        const rect = header.getBoundingClientRect();
+        if (rect.top <= 0 && rect.bottom > 0) {
+          header.classList.add("is-sticky");
+        } else {
+          header.classList.remove("is-sticky");
+        }
+      });
+    });
 
     cargarCarta();
   });
