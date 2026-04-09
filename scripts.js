@@ -61,59 +61,69 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // ===== FUNCIÓN PARA CARGAR CARTA =====
     async function cargarCarta() {
-      const menu = document.getElementById('menu');
+      const menuContainer = document.getElementById('menu');
       try {
-        console.log('📡 Obteniendo datos desde Firebase...');
-        const snapshot = await get(child(ref(db), '/'));
-        if (!snapshot.exists()) throw new Error('No se encontraron datos en la base');
-
+        console.log('📡 Obteniendo datos completos...');
+        // Pedimos la raíz "/" para ver TODO (menu-dia, platos, bebidas, etc.)
+        const snapshot = await get(child(ref(db), '/')); 
+        
+        if (!snapshot.exists()) return;
+    
         const data = snapshot.val();
-        console.log('📦 Datos recibidos:', data);
-
-        // Limpiar menú
-        menu.innerHTML = '';
-
-        // Recorrer categorías (entradas, elaborados, etc.)
-        Object.entries(data).forEach(([id, categoria]) => {
+        console.log('📦 Estructura completa recibida:', data);
+    
+        menuContainer.innerHTML = '';
+    
+        // 1. PROCESAR PLATOS Y BEBIDAS
+        // Buscamos dentro de 'entrada/platos' y 'entrada/bebidas' si existen
+        const categoriasBase = data.entrada || data; 
+        
+        // Unificamos todas las categorías posibles (platos y bebidas)
+        const todasLasCategorias = { 
+          ...(categoriasBase.platos || {}), 
+          ...(categoriasBase.bebidas || {}) 
+        };
+    
+        Object.entries(todasLasCategorias).forEach(([id, categoria]) => {
+          // Ignorar si no es un objeto o no tiene platos/bebidas
+          if (typeof categoria !== 'object' || (!categoria.Platos && !categoria.Bebidas)) return;
+    
           const section = document.createElement('section');
           section.className = 'menu-section';
           section.id = id;
-
-          // Header
-          const headerDiv = document.createElement('div');
-          headerDiv.className = 'section-header';
-          const h2 = document.createElement('h2');
-          h2.textContent = categoria.Categoria;
-          headerDiv.appendChild(h2);
-          section.appendChild(headerDiv);
-
-          // Platos
-          if (Array.isArray(categoria.Platos)) {
-            categoria.Platos.forEach(plato => {
-              const div = document.createElement('div');
-              div.className = 'menu-item';
-              const precioNum = Number(plato.Precio);
-              const precio = Number.isFinite(precioNum) ? precioNum.toLocaleString('es-AR') : '-';
-              div.innerHTML = `
-                <div class="info">
-                  <h3>${plato.Plato || ''}</h3>
-                  <p>${plato.Descripcion || ''}</p>
-                </div>
-                <span class="price">${precio === '-' ? '' : '$' + precio}</span>
-              `;
-              section.appendChild(div);
-            });
-          }
-
-          menu.appendChild(section);
+    
+          section.innerHTML = `
+            <div class="section-header">
+              <h2>${categoria.Categoria || id}</h2>
+            </div>
+          `;
+    
+          const items = categoria.Platos || categoria.Bebidas || [];
+          
+          Object.values(items).forEach(item => {
+            const precioNum = Number(item.Precio || item.precio);
+            const precioFormat = !isNaN(precioNum) ? `$${precioNum.toLocaleString('es-AR')}` : '';
+            
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'menu-item';
+            itemDiv.innerHTML = `
+              <div class="info">
+                <h3>${item.Plato || item.bebida || 'Sin nombre'}</h3>
+                <p>${item.Descripcion || ''}</p>
+              </div>
+              <span class="price">${precioFormat}</span>
+            `;
+            section.appendChild(itemDiv);
+          });
+    
+          menuContainer.appendChild(section);
         });
-
-        console.log('✅ Carta renderizada desde Firebase');
-        iniciarEfectoScroll();
-
+    
+        console.log('✅ Carta completa renderizada');
+        if (typeof iniciarEfectoScroll === 'function') iniciarEfectoScroll();
+    
       } catch (err) {
-        console.error('💥 Error al cargar la carta:', err);
-        document.getElementById('menu').innerHTML = '<p>Error al cargar la carta.</p>';
+        console.error('💥 Error:', err);
       }
     }
 
