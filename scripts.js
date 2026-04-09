@@ -58,16 +58,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!menuContainer) return;
 
             try {
-                console.log('📡 Obteniendo datos desde Firebase...');
                 const snapshot = await get(child(ref(db), '/'));
                 if (!snapshot.exists()) return;
 
                 const data = snapshot.val();
+                const base = data.entrada || data;
                 menuContainer.innerHTML = '';
 
-                const base = data.entrada || data;
-                const grupos = ['platos', 'bebidas'];
+                // 1. CARGAR MENÚ DEL DÍA (Primero)
+                if (base['menu-dia']) {
+                    renderMenuDia(base['menu-dia'], menuContainer);
+                }
 
+                // 2. CARGAR PLATOS Y BEBIDAS
+                const grupos = ['platos', 'bebidas'];
                 grupos.forEach(grupo => {
                     if (base[grupo]) {
                         Object.entries(base[grupo]).forEach(([id, categoria]) => {
@@ -76,50 +80,46 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
-                Object.entries(base).forEach(([id, contenido]) => {
-                    if (!grupos.includes(id) && id !== 'menu-dia' && contenido.Categoria) {
-                        renderSeccion(id, contenido, menuContainer);
-                    }
-                });
-
-                console.log('✅ Carta completa renderizada');
                 iniciarEfectoScroll();
+                console.log('✅ Menú completo (incluyendo Menú del Día) cargado');
 
             } catch (err) {
-                console.error('💥 Error al cargar la carta:', err);
+                console.error('💥 Error:', err);
             }
         }
+
         function renderMenuDia(data, container) {
-                const section = document.createElement("section");
-                section.className = "menu-dia";
-                section.id = "menu-dia";
-                
-                section.innerHTML = `
-                    <div class="menu-dia-header ${dentroDelHorario ? "" : "fuera-horario"}">
-                        <h2>${data.Categoria}</h2>
-                        <p class="horario">Disponible de ${data.Horario}</p>
-                        <p class="precio">$${Number(data.Precio).toLocaleString("es-AR")} <small>p/p</small></p>
-                        ${!dentroDelHorario ? '<button id="btnVerDia" class="btn-ver-menu">Ver opciones igualmente</button>' : ''}
-                    </div>
-                    <div class="menu-dia-opciones ${dentroDelHorario ? 'open' : ''}" id="contDia" style="${dentroDelHorario ? '' : 'display:none;'}">
-                        <div class="columna"><h3>Principales</h3><ul>${(data.Platos || []).map(p => `<li>${p}</li>`).join('')}</ul></div>
-                        <div class="columna"><h3>Postres</h3><ul>${(data.Postres || []).map(p => `<li>${p}</li>`).join('')}</ul></div>
-                        <div class="columna"><h3>Bebidas</h3><ul>${(data.Bebidas || []).map(p => `<li>${p}</li>`).join('')}</ul></div>
-                    </div>
-                `;
-                container.appendChild(section);
-    
-                // Evento para el botón si está fuera de horario
-                const btn = section.querySelector("#btnVerDia");
-                if (btn) {
-                    btn.onclick = () => {
-                        const cont = section.querySelector("#contDia");
-                        const isHidden = cont.style.display === "none";
-                        cont.style.display = isHidden ? "flex" : "none";
-                        btn.textContent = isHidden ? "Ocultar opciones" : "Ver opciones igualmente";
-                    };
-                }
+            const section = document.createElement("section");
+            section.className = "menu-dia";
+            section.id = "menu-dia";
+            
+            section.innerHTML = `
+                <div class="menu-dia-header ${dentroDelHorario ? "" : "fuera-horario"}">
+                    <h2>${data.Categoria}</h2>
+                    <p class="horario">Disponible de ${data.Horario}</p>
+                    <p class="precio">$${Number(data.Precio).toLocaleString("es-AR")} <small>p/p</small></p>
+                    ${!dentroDelHorario ? '<button id="btnVerDia" class="btn-ver-menu">Ver opciones igualmente</button>' : ''}
+                </div>
+                <div class="menu-dia-opciones ${dentroDelHorario ? 'open' : ''}" id="contDia" style="${dentroDelHorario ? '' : 'display:none;'}">
+                    <div class="columna"><h3>Principales</h3><ul>${(data.Platos || []).map(p => `<li>${p}</li>`).join('')}</ul></div>
+                    <div class="columna"><h3>Postres</h3><ul>${(data.Postres || []).map(p => `<li>${p}</li>`).join('')}</ul></div>
+                    <div class="columna"><h3>Bebidas</h3><ul>${(data.Bebidas || []).map(p => `<li>${p}</li>`).join('')}</ul></div>
+                </div>
+            `;
+            container.appendChild(section);
+
+            // Evento para el botón si está fuera de horario
+            const btn = section.querySelector("#btnVerDia");
+            if (btn) {
+                btn.onclick = () => {
+                    const cont = section.querySelector("#contDia");
+                    const isHidden = cont.style.display === "none";
+                    cont.style.display = isHidden ? "flex" : "none";
+                    btn.textContent = isHidden ? "Ocultar opciones" : "Ver opciones igualmente";
+                };
             }
+        }
+
         function renderSeccion(id, categoria, container) {
             const items = categoria.Platos || categoria.Bebidas || [];
             if (Object.keys(items).length === 0) return;
@@ -137,10 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'menu-item';
                 itemDiv.innerHTML = `
-                    <div class="info">
-                        <h3>${nombre}</h3>
-                        <p>${item.Descripcion || ''}</p>
-                    </div>
+                    <div class="info"><h3>${nombre}</h3><p>${item.Descripcion || ''}</p></div>
                     <span class="price">${precioFormat}</span>
                 `;
                 section.appendChild(itemDiv);
@@ -158,12 +155,11 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.section-header').forEach(h => io.observe(h));
         }
 
-        // Ejecutar carga inicial de Firebase
         cargarCarta();
 
     }).catch(err => console.error("❌ Error Firebase:", err));
 
-    // ===== STICKY HEADER SCROLL =====
+    // STICKY HEADER
     window.addEventListener("scroll", () => {
         document.querySelectorAll(".section-header").forEach(header => {
             const rect = header.getBoundingClientRect();
