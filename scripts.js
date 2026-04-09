@@ -100,24 +100,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
         
                 function renderMenuDia(data, container) {
-                    console.log("🛠 Renderizando MenuDia con estos datos:", data);
-        
+                    console.log("Datos recibidos en renderMenuDia:", data);
+                
                     const section = document.createElement("section");
                     section.className = "menu-dia";
                     section.id = "menu-dia";
-        
-                    // Helper para convertir lo que sea (objeto o array) en una lista
-                    const toArray = (val) => {
-                        if (!val) return [];
-                        const res = Array.isArray(val) ? val : Object.values(val);
-                        console.log("--- Transformando lista:", res);
-                        return res;
+                
+                    // --- CORRECCIÓN DE JERARQUÍA ---
+                    // Convertimos el objeto {0: "plato", 1: "plato"} en una lista real ["plato", "plato"]
+                    // Buscamos específicamente "Platos", "Postres" y "Bebidas" (con Mayúscula inicial)
+                    const obtenerLista = (campo) => {
+                        const valor = data[campo]; 
+                        if (!valor) return [];
+                        // Si es objeto lo volvemos array, si ya es array lo dejamos igual
+                        return Array.isArray(valor) ? valor : Object.values(valor);
                     };
-        
-                    const listaPlatos = toArray(data.platos || data.Platos);
-                    const listaPostres = toArray(data.postres || data.Postres);
-                    const listaBebidas = toArray(data.bebidas || data.Bebidas);
-        
+                
+                    const listaPlatos = obtenerLista('Platos');
+                    const listaPostres = obtenerLista('Postres');
+                    const listaBebidas = obtenerLista('Bebidas');
+                
+                    console.log("Listas procesadas:", { listaPlatos, listaPostres, listaBebidas });
+                
                     section.innerHTML = `
                         <div class="menu-dia-header ${dentroDelHorario ? "" : "fuera-horario"}">
                             <h2>${data.Categoria || 'Menú del Día'}</h2>
@@ -128,20 +132,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="menu-dia-opciones ${dentroDelHorario ? 'open' : ''}" id="contDia" style="${dentroDelHorario ? 'display:flex;' : 'display:none;'}">
                             <div class="columna">
                                 <h3>Principales</h3>
-                                <ul>${listaPlatos.length > 0 ? listaPlatos.map(p => `<li>${p}</li>`).join('') : '<li>Cargando opciones...</li>'}</ul>
+                                <ul>${listaPlatos.length > 0 ? listaPlatos.map(p => `<li>${p}</li>`).join('') : '<li>Consultar</li>'}</ul>
                             </div>
                             <div class="columna">
                                 <h3>Postres</h3>
-                                <ul>${listaPostres.length > 0 ? listaPostres.map(p => `<li>${p}</li>`).join('') : '<li>Cargando opciones...</li>'}</ul>
+                                <ul>${listaPostres.length > 0 ? listaPostres.map(p => `<li>${p}</li>`).join('') : '<li>Consultar</li>'}</ul>
                             </div>
                             <div class="columna">
                                 <h3>Bebidas</h3>
-                                <ul>${listaBebidas.length > 0 ? listaBebidas.map(p => `<li>${p}</li>`).join('') : '<li>Cargando opciones...</li>'}</ul>
+                                <ul>${listaBebidas.length > 0 ? listaBebidas.map(p => `<li>${p}</li>`).join('') : '<li>Consultar</li>'}</ul>
                             </div>
                         </div>
                     `;
                     container.appendChild(section);
-        
+                
+                    // Evento del botón
                     const btn = section.querySelector("#btnVerDia");
                     if (btn) {
                         btn.onclick = () => {
