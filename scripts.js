@@ -92,43 +92,44 @@ document.addEventListener('DOMContentLoaded', () => {
             const section = document.createElement("section");
             section.className = "menu-dia";
             section.id = "menu-dia";
-            
-            // 1. Normalizamos los datos: aceptamos tanto minúsculas como mayúsculas
+        
+            // 1. Normalizamos: Extraemos los datos sin importar si vienen en Mayúsculas o Minúsculas
             const listaPlatos = data.platos || data.Platos || [];
             const listaPostres = data.postres || data.Postres || [];
             const listaBebidas = data.bebidas || data.Bebidas || [];
-            
+        
             section.innerHTML = `
                 <div class="menu-dia-header ${dentroDelHorario ? "" : "fuera-horario"}">
                     <h2>${data.Categoria || 'Menú del Día'}</h2>
-                    <p class="horario">Disponible de ${data.Horario || 'horario no definido'}</p>
+                    <p class="horario">Disponible de ${data.Horario || '12:30 a 15:00'}</p>
                     <p class="precio">$${Number(data.Precio).toLocaleString("es-AR")} <small>p/p</small></p>
                     ${!dentroDelHorario ? '<button id="btnVerDia" class="btn-ver-menu">Ver opciones igualmente</button>' : ''}
                 </div>
-                <div class="menu-dia-opciones ${dentroDelHorario ? 'open' : ''}" id="contDia" style="${dentroDelHorario ? '' : 'display:none;'}">
+                <div class="menu-dia-opciones ${dentroDelHorario ? 'open' : ''}" id="contDia" style="${dentroDelHorario ? 'display:flex;' : 'display:none;'}">
                     <div class="columna">
                         <h3>Principales</h3>
-                        <ul>${listaPlatos.map(p => `<li>${p}</li>`).join('')}</ul>
+                        <ul>${listaPlatos.length > 0 ? listaPlatos.map(p => `<li>${p}</li>`).join('') : '<li>No disponible</li>'}</ul>
                     </div>
                     <div class="columna">
                         <h3>Postres</h3>
-                        <ul>${listaPostres.map(p => `<li>${p}</li>`).join('')}</ul>
+                        <ul>${listaPostres.length > 0 ? listaPostres.map(p => `<li>${p}</li>`).join('') : '<li>No disponible</li>'}</ul>
                     </div>
                     <div class="columna">
                         <h3>Bebidas</h3>
-                        <ul>${listaBebidas.map(p => `<li>${p}</li>`).join('')}</ul>
+                        <ul>${listaBebidas.length > 0 ? listaBebidas.map(p => `<li>${p}</li>`).join('') : '<li>No disponible</li>'}</ul>
                     </div>
                 </div>
             `;
             container.appendChild(section);
         
-            // Evento para el botón (se mantiene igual)
+            // 2. Lógica del botón corregida
             const btn = section.querySelector("#btnVerDia");
             if (btn) {
                 btn.onclick = () => {
                     const cont = section.querySelector("#contDia");
                     const isHidden = cont.style.display === "none";
-                    cont.style.display = isHidden ? "flex" : "none"; // Usamos flex para mantener el diseño de columnas
+                    // Usamos 'flex' al mostrar para que las columnas se vean bien
+                    cont.style.display = isHidden ? "flex" : "none"; 
                     btn.textContent = isHidden ? "Ocultar opciones" : "Ver opciones igualmente";
                 };
             }
