@@ -68,18 +68,24 @@
 
   <!-- 🔥 Firebase -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAjPnsWU7bdiRl12bYM-UdgpEJZcePBcnE",
-      authDomain: "menubarrancas.firebaseapp.com",
-      databaseURL: "https://menubarrancas-default-rtdb.firebaseio.com",
-      projectId: "menubarrancas",
-      storageBucket: "menubarrancas.firebasestorage.app",
-      messagingSenderId: "415717810155",
-      appId: "1:415717810155:web:8a41095ab084acea65c3ae"
-    };
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-analytics.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+    
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyCe67XEXCVCsCLxRIfGDCWmoW190toBVkE",
+        authDomain: "menubarrancas-b648a.firebaseapp.com",
+        databaseURL: "https://menubarrancas-b648a-default-rtdb.firebaseio.com",
+        projectId: "menubarrancas-b648a",
+        storageBucket: "menubarrancas-b648a.firebasestorage.app",
+        messagingSenderId: "712270431648",
+        appId: "1:712270431648:web:098c53ed6d248eb3f610c5",
+        measurementId: "G-6C5BWCL2KT"
+      };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
