@@ -34,8 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+// === CONFIGURACIÓN DE HORARIO ===
+    const ahora = new Date();
+    const totalMinutos = ahora.getHours() * 60 + ahora.getMinutes();
+    const dentroDelHorario = totalMinutos >= 750 && totalMinutos <= 900; 
+    console.log(`⏰ Minutos actuales: ${totalMinutos} | ¿Está en horario?: ${dentroDelHorario}`);
 
-    // ===== CONFIGURAR FIREBASE =====
+    // === FIREBASE ===
     import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js").then(async ({ initializeApp }) => {
         const { getDatabase, ref, get, child } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js");
 
@@ -51,129 +56,127 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
-        // ===== FUNCIÓN PARA CARGAR CARTA =====
-        async function cargarCarta() {
-            const menuContainer = document.getElementById('menu');
-            if (!menuContainer) return;
-
-            try {
-                const snapshot = await get(child(ref(db), '/'));
-                if (!snapshot.exists()) return;
-
-                const data = snapshot.val();
-                const base = data.entrada ? data.entrada : data;
-                menuContainer.innerHTML = '';
-
-                // 1. CARGAR MENÚ DEL DÍA (Primero)
-                if (base['menu-dia']) {
-                    renderMenuDia(base['menu-dia'], menuContainer);
-                }
-
-                // 2. CARGAR PLATOS Y BEBIDAS
-                const grupos = ['platos', 'bebidas'];
-                grupos.forEach(grupo => {
-                    if (base[grupo]) {
-                        Object.entries(base[grupo]).forEach(([id, categoria]) => {
-                            renderSeccion(id, categoria, menuContainer);
+        
+                async function cargarCarta() {
+                    const menuContainer = document.getElementById('menu');
+                    if (!menuContainer) return;
+        
+                    try {
+                        const snapshot = await get(child(ref(db), '/'));
+                        if (!snapshot.exists()) {
+                            console.warn("⚠️ No se encontraron datos en Firebase.");
+                            return;
+                        }
+        
+                        const data = snapshot.val();
+                        console.log("raw_data_from_firebase:", data); // 👀 MIRA ESTO EN CONSOLA
+        
+                        const base = data.entrada || data;
+                        console.log("base_para_renderizar:", base); // 👀 MIRA ESTO EN CONSOLA
+        
+                        menuContainer.innerHTML = '';
+        
+                        // 1. CARGAR MENÚ DEL DÍA
+                        if (base['menu-dia']) {
+                            console.log("🔎 Detectado 'menu-dia':", base['menu-dia']);
+                            renderMenuDia(base['menu-dia'], menuContainer);
+                        } else {
+                            console.error("❌ No existe la clave 'menu-dia' en la base de datos.");
+                        }
+        
+                        // 2. CARGAR PLATOS Y BEBIDAS RESTANTES
+                        const grupos = ['platos', 'bebidas'];
+                        grupos.forEach(grupo => {
+                            if (base[grupo]) {
+                                Object.entries(base[grupo]).forEach(([id, categoria]) => {
+                                    renderSeccion(id, categoria, menuContainer);
+                                });
+                            }
                         });
+        
+                    } catch (err) {
+                        console.error('💥 Error cargando carta:', err);
                     }
-                });
-
-                iniciarEfectoScroll();
-                console.log('✅ Menú completo (incluyendo Menú del Día) cargado');
-
-            } catch (err) {
-                console.error('💥 Error:', err);
-            }
-        }
-
-        function renderMenuDia(data, container) {
-            const section = document.createElement("section");
-            section.className = "menu-dia";
-            section.id = "menu-dia";
+                }
         
-            // 1. Normalizamos: Extraemos los datos sin importar si vienen en Mayúsculas o Minúsculas
-            const listaPlatos = data.platos || data.Platos || [];
-            const listaPostres = data.postres || data.Postres || [];
-            const listaBebidas = data.bebidas || data.Bebidas || [];
+                function renderMenuDia(data, container) {
+                    console.log("🛠 Renderizando MenuDia con estos datos:", data);
         
-            section.innerHTML = `
-                <div class="menu-dia-header ${dentroDelHorario ? "" : "fuera-horario"}">
-                    <h2>${data.Categoria || 'Menú del Día'}</h2>
-                    <p class="horario">Disponible de ${data.Horario || '12:30 a 15:00'}</p>
-                    <p class="precio">$${Number(data.Precio).toLocaleString("es-AR")} <small>p/p</small></p>
-                    ${!dentroDelHorario ? '<button id="btnVerDia" class="btn-ver-menu">Ver opciones igualmente</button>' : ''}
-                </div>
-                <div class="menu-dia-opciones ${dentroDelHorario ? 'open' : ''}" id="contDia" style="${dentroDelHorario ? 'display:flex;' : 'display:none;'}">
-                    <div class="columna">
-                        <h3>Principales</h3>
-                        <ul>${listaPlatos.length > 0 ? listaPlatos.map(p => `<li>${p}</li>`).join('') : '<li>No disponible</li>'}</ul>
-                    </div>
-                    <div class="columna">
-                        <h3>Postres</h3>
-                        <ul>${listaPostres.length > 0 ? listaPostres.map(p => `<li>${p}</li>`).join('') : '<li>No disponible</li>'}</ul>
-                    </div>
-                    <div class="columna">
-                        <h3>Bebidas</h3>
-                        <ul>${listaBebidas.length > 0 ? listaBebidas.map(p => `<li>${p}</li>`).join('') : '<li>No disponible</li>'}</ul>
-                    </div>
-                </div>
-            `;
-            container.appendChild(section);
+                    const section = document.createElement("section");
+                    section.className = "menu-dia";
+                    section.id = "menu-dia";
         
-            // 2. Lógica del botón corregida
-            const btn = section.querySelector("#btnVerDia");
-            if (btn) {
-                btn.onclick = () => {
-                    const cont = section.querySelector("#contDia");
-                    const isHidden = cont.style.display === "none";
-                    // Usamos 'flex' al mostrar para que las columnas se vean bien
-                    cont.style.display = isHidden ? "flex" : "none"; 
-                    btn.textContent = isHidden ? "Ocultar opciones" : "Ver opciones igualmente";
-                };
-            }
-        }
-
-        function renderSeccion(id, categoria, container) {
-            const items = categoria.Platos || categoria.Bebidas || [];
-            if (Object.keys(items).length === 0) return;
-
-            const section = document.createElement('section');
-            section.className = 'menu-section';
-            section.id = id;
-            section.innerHTML = `<div class="section-header"><h2>${categoria.Categoria || id}</h2></div>`;
-
-            Object.values(items).forEach(item => {
-                const nombre = item.Plato || item.bebida || 'Sin nombre';
-                const precioNum = Number(item.Precio || item.precio);
-                const precioFormat = !isNaN(precioNum) && precioNum > 0 ? `$${precioNum.toLocaleString('es-AR')}` : '';
-
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'menu-item';
-                itemDiv.innerHTML = `
-                    <div class="info"><h3>${nombre}</h3><p>${item.Descripcion || ''}</p></div>
-                    <span class="price">${precioFormat}</span>
-                `;
-                section.appendChild(itemDiv);
-            });
-            container.appendChild(section);
-        }
-
-        function iniciarEfectoScroll() {
-            const io = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.intersectionRatio > 0.6) entry.target.classList.add('active');
-                    else entry.target.classList.remove('active');
-                });
-            }, { threshold: [0.4, 0.6, 0.8] });
-            document.querySelectorAll('.section-header').forEach(h => io.observe(h));
-        }
-
-        cargarCarta();
-
-    }).catch(err => console.error("❌ Error Firebase:", err));
-
+                    // Helper para convertir lo que sea (objeto o array) en una lista
+                    const toArray = (val) => {
+                        if (!val) return [];
+                        const res = Array.isArray(val) ? val : Object.values(val);
+                        console.log("--- Transformando lista:", res);
+                        return res;
+                    };
+        
+                    const listaPlatos = toArray(data.platos || data.Platos);
+                    const listaPostres = toArray(data.postres || data.Postres);
+                    const listaBebidas = toArray(data.bebidas || data.Bebidas);
+        
+                    section.innerHTML = `
+                        <div class="menu-dia-header ${dentroDelHorario ? "" : "fuera-horario"}">
+                            <h2>${data.Categoria || 'Menú del Día'}</h2>
+                            <p class="horario">Disponible de ${data.Horario || '12:30 a 15:00'}</p>
+                            <p class="precio">$${Number(data.Precio).toLocaleString("es-AR")} <small>p/p</small></p>
+                            ${!dentroDelHorario ? '<button id="btnVerDia" class="btn-ver-menu">Ver opciones igualmente</button>' : ''}
+                        </div>
+                        <div class="menu-dia-opciones ${dentroDelHorario ? 'open' : ''}" id="contDia" style="${dentroDelHorario ? 'display:flex;' : 'display:none;'}">
+                            <div class="columna">
+                                <h3>Principales</h3>
+                                <ul>${listaPlatos.length > 0 ? listaPlatos.map(p => `<li>${p}</li>`).join('') : '<li>Cargando opciones...</li>'}</ul>
+                            </div>
+                            <div class="columna">
+                                <h3>Postres</h3>
+                                <ul>${listaPostres.length > 0 ? listaPostres.map(p => `<li>${p}</li>`).join('') : '<li>Cargando opciones...</li>'}</ul>
+                            </div>
+                            <div class="columna">
+                                <h3>Bebidas</h3>
+                                <ul>${listaBebidas.length > 0 ? listaBebidas.map(p => `<li>${p}</li>`).join('') : '<li>Cargando opciones...</li>'}</ul>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(section);
+        
+                    const btn = section.querySelector("#btnVerDia");
+                    if (btn) {
+                        btn.onclick = () => {
+                            const cont = section.querySelector("#contDia");
+                            const isHidden = cont.style.display === "none";
+                            cont.style.display = isHidden ? "flex" : "none";
+                            btn.textContent = isHidden ? "Ocultar opciones" : "Ver opciones igualmente";
+                        };
+                    }
+                }
+        
+                // --- LAS OTRAS FUNCIONES SE MANTIENEN ---
+                function renderSeccion(id, categoria, container) {
+                    const items = categoria.Platos || categoria.Bebidas || [];
+                    if (Object.keys(items).length === 0) return;
+                    const section = document.createElement('section');
+                    section.className = 'menu-section';
+                    section.id = id;
+                    section.innerHTML = `<div class="section-header"><h2>${categoria.Categoria || id}</h2></div>`;
+                    Object.values(items).forEach(item => {
+                        const nombre = item.Plato || item.bebida || 'Sin nombre';
+                        const precioNum = Number(item.Precio || item.precio);
+                        const precioFormat = !isNaN(precioNum) && precioNum > 0 ? `$${precioNum.toLocaleString('es-AR')}` : '';
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'menu-item';
+                        itemDiv.innerHTML = `<div class="info"><h3>${nombre}</h3><p>${item.Descripcion || ''}</p></div><span class="price">${precioFormat}</span>`;
+                        section.appendChild(itemDiv);
+                    });
+                    container.appendChild(section);
+                }
+        
+                cargarCarta();
+        
+            }).catch(err => console.error("❌ Error Firebase:", err));
+        });
     // STICKY HEADER
     window.addEventListener("scroll", () => {
         document.querySelectorAll(".section-header").forEach(header => {
