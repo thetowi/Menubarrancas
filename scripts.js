@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!snapshot.exists()) return;
 
                 const data = snapshot.val();
-                const base = data.entrada || data;
+                const base = data.entrada ? data.entrada : data;
                 menuContainer.innerHTML = '';
 
                 // 1. CARGAR MENÚ DEL DÍA (Primero)
@@ -92,6 +92,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const section = document.createElement("section");
             section.className = "menu-dia";
             section.id = "menu-dia";
+            // Validamos que existan los arrays para evitar errores de .map()
+            const platos = data.platos || data.Platos || [];
+            const postres = data.postres || data.Postres || [];
+            const bebidas = data.bebidas || data.Bebidas || [];
             
             section.innerHTML = `
                 <div class="menu-dia-header ${dentroDelHorario ? "" : "fuera-horario"}">
