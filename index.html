@@ -68,14 +68,12 @@
 
   <!-- 🔥 Firebase -->
   <script type="module">
-      // Import the functions you need from the SDKs you need
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-      import { getAnalytics, ref, child, get } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-analytics.js";
-      // TODO: Add SDKs for Firebase products that you want to use
-      // https://firebase.google.com/docs/web/setup#available-libraries
+      // 1. IMPORTACIONES DESDE EL CDN (Usando la versión estable 10.7.1)
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      // NOTA: Importamos de 'firebase-database.js', NO de analytics
+      import { getDatabase, ref, child, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     
-      // Your web app's Firebase configuration
-      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      // 2. CONFIGURACIÓN (Tu objeto de configuración)
       const firebaseConfig = {
         apiKey: "AIzaSyCe67XEXCVCsCLxRIfGDCWmoW190toBVkE",
         authDomain: "menubarrancas-b648a.firebaseapp.com",
@@ -86,11 +84,11 @@
         appId: "1:712270431648:web:098c53ed6d248eb3f610c5",
         measurementId: "G-6C5BWCL2KT"
       };
-
-        // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getAnalytics(app);
-    const menu = document.getElementById("menu");
+    
+      // 3. INICIALIZACIÓN
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app); // Importante: usamos 'db' para la base de datos
+      const menu = document.getElementById("menu");
 
     // === CARGAR MENÚ DEL DÍA ===
     get(child(ref(db), "entrada/menu-dia"))
