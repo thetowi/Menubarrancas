@@ -315,14 +315,40 @@ body.menu-open footer {
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
+#menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+#menu p {
+  font-size: 18px;
+  font-weight: 600;
+  color: #555;
+  animation: pulse 1.5s infinite;
+  transition: opacity 0.3s ease;
+}
+
+/* Animación de entrada */
+@keyframes pulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+/* Animación de salida */
+.fade-out {
+  opacity: 0;
+}
 
 /* HEADER PEGABLE DE CADA SECCIÓN */
 .section-header {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: #faf7f2;
-  border-bottom: 1px solid #d8c8a0;
+  background: transparent;
+  border-bottom: 0px solid #d8c8a0;
   margin-bottom: 15px;
   display: flex;
   align-items: center;
@@ -330,6 +356,7 @@ body.menu-open footer {
   overflow: hidden; /* evita que se vea desbordado al moverlo */
   justify-content: flex-start; /* 👈 inicia a la izquierda */
   transition: justify-content 0.6s ease; /* 👈 animación del centrado */
+  opacity: 90%;
 }
 
 .section-header.active {
@@ -355,6 +382,8 @@ body.menu-open footer {
   width: 100vw; /* ocupa todo el ancho del viewport */
   margin-left: calc(50% - 50vw); /* corrige el centrado del contenedor */
   justify-content: center; /* centra horizontalmente */
+  background: rgba(255, 255, 255, 0.7); /* 70% blanco */
+  backdrop-filter: blur(8px); /* efecto vidrio */
 }
 /* Cuando llega al top */
 .section-header.active h2 {
@@ -831,7 +860,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 6px 0;
-  border-bottom: 1px linen #ccc;
+  border-bottom: 0px linen transparent;
 }
 
 .subcategoria .menu-item h4 {
