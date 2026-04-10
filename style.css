@@ -322,7 +322,7 @@ body.menu-open footer {
   min-height: 60vh;
 }
 
-#menu p {
+#menu .loading {
   font-size: 18px;
   font-weight: 600;
   color: #555;
