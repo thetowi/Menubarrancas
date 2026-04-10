@@ -39,11 +39,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const toggle = document.getElementById('menuToggle');
   const nav = document.getElementById('menuNav');
 
-  if (toggle && nav) {
-    toggle.addEventListener('click', () => {
-      nav.classList.toggle('active');
-      document.body.classList.toggle('menu-open');
-    });
+    // === 2. MENÚ HAMBURGUESA + SCROLL SUAVE ===
+    const toggle = document.getElementById('menuToggle');
+    const nav = document.getElementById('menuNav');
 
     document.querySelectorAll('.menu-nav a').forEach(a => {
       a.addEventListener('click', (e) => {
