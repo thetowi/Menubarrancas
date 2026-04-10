@@ -137,12 +137,22 @@ document.addEventListener('DOMContentLoaded', () => {
             container.appendChild(section);
 
             const btn = section.querySelector("#btnVerDia");
-            if (btn) {
+            const cont = section.querySelector("#contDia");
+            
+            if (btn && cont) {
                 btn.onclick = () => {
-                    const cont = section.querySelector("#contDia");
-                    const isHidden = cont.style.display === "none";
-                    cont.style.display = isHidden ? "flex" : "none";
-                    btn.textContent = isHidden ? "Ocultar opciones" : "Ver opciones igualmente";
+                    // Verificamos el estado actual basándonos en si el elemento está oculto
+                    const isHidden = cont.style.display === "none" || getComputedStyle(cont).display === "none";
+                    
+                    if (isHidden) {
+                        cont.style.display = "flex";
+                        cont.classList.add("open"); // Aseguramos que las animaciones de CSS se activen
+                        btn.textContent = "Ocultar opciones";
+                    } else {
+                        cont.style.display = "none";
+                        cont.classList.remove("open");
+                        btn.textContent = "Ver opciones igualmente";
+                    }
                 };
             }
         }
